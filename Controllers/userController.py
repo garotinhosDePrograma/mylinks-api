@@ -48,6 +48,4 @@ def upload_foto(usuario_id):
     path = os.path.join("uploads", secure_filename(filename))
     file.save(path)
     
-    from Worker.userWorker import UserWorker
-    worker = UserWorker()
     return jsonify(worker.upload_foto_perfil(usuario_id, filename))
