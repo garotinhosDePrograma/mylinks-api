@@ -33,3 +33,8 @@ class UserWorker:
         if not user:
             return {"error": "Usuário não encontrado"}, 404
         return user
+
+    def update_foto_perfil(self, usuario_id, filename):
+        image_url = f"/uploads/{filename}
+        repo.update_foto(usuario_id, image_url)
+        return {"message": "Foto de perfil atualizada com sucesso", "foto_perfil": image_url}
