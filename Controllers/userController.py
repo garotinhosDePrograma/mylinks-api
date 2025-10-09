@@ -1,5 +1,8 @@
 from flask import Blueprint, request, jsonify
 from Workers.userWorker import UserWorker
+from werkzeug.utils import secure_filename
+from utils.auth import token_required
+import os
 
 user_bp = Blueprint("usuario", __name__)
 worker = UserWorker()
@@ -24,3 +27,27 @@ def login():
 @user_bp.route("/user/<string:username>", methods=["GET"])
 def public_profile():
     return jsonify(worker.get_public_profile(username))
+
+@user_bp.route("/auth/upload", methods=["POST"])
+@token_required
+def upload_foto(usuario_id):
+    if "file" not in request.files:
+        return jsonify({"error": "Nenhum arquivo enviado"}), 400
+    
+    file = request.files["file"]
+    
+    if file.filename == "":
+        return jsonify({"error": "Arquivo inválido"}), 400
+    
+    extensoes = {"png", "jpg", "jpeg"}
+    ext = file.filename.rsplit(".", 1)[-1].lower()
+    if ext not in extensoes:
+        return jsonify({"error": "Formato não permitido"}), 400
+    
+    filename = f"user_{usuario_id}.{ext}"
+    path = os.path.join("uploads", secure_filename(filename))
+    file.save(path)
+    
+    from Worker.userWorker import UserWorker
+    worker = UserWorker()
+    return jsonify(worker.upload_foto_perfil(usuario_id, filename))
