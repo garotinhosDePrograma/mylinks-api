@@ -20,3 +20,7 @@ def login():
     email = data.get("email")
     senha = data.get("senha")
     return jsonify(worker.login(email, senha))
+
+@user_bp.route("/user/<string:username>", methods=["GET"])
+def public_profile():
+    return jsonify(worker.get_public_profile(username))
