@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from Worker.linkWorker import LinkWorker
+from Workers.linkWorker import LinkWorker
 from Utils.auth import token_required
 
 link_bp = Blueprint("links", __name__)
@@ -38,3 +38,4 @@ def delete_link(usuario_id, id):
 def reorder_links(usuario_id):
     data = request.get_json()
     return jsonify(worker.reordenar(usuario_id, data))
+
