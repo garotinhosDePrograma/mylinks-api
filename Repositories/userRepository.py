@@ -50,4 +50,15 @@ class UserRepository:
         conn.close()
         
         user["links"] = links
-        return userf
+        return user
+
+    def update_foto(self, usuario_id, image_url):
+        conn = get_db()
+        cursor = conn.cursor()
+        cursor.execute(
+            "UPDATE usuarios SET foto_perfil = %s WHERE id = %s",
+            (usuario_id, image_url)
+        )
+        conn.commit()
+        cursor.close()
+        conn.close()
