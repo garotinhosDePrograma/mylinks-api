@@ -27,3 +27,9 @@ class UserWorker:
             algorithm="HS256"
         )
         return {"token": token, "user": {"id": user["id"], "username": user["username"]}}
+
+    def get_public_profile(self, username):
+        user = repo.get_public_profile(username)
+        if not user:
+            return {"error": "Usuário não encontrado"}, 404
+        return user
