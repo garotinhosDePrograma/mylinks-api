@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify
 from Workers.userWorker import UserWorker
 from werkzeug.utils import secure_filename
-from utils.auth import token_required
+from Utils.auth import token_required
 import os
 
 user_bp = Blueprint("usuario", __name__)
