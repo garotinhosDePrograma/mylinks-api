@@ -31,3 +31,23 @@ class UserRepository:
         cursor.close()
         conn.close()
         return user
+
+    def get_public_profile(self, username):
+        conn = get_db()
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("SELECT id, username, foto_perfil FROM usuarios username = %s", (username,))
+        user = cursor.fetchone()
+
+        if not user:
+            cursor.close()
+            conn.close()
+            return None
+
+        cursor.execute("SELECT id, titulo, url, orden FROM links WHERE usuario_id = %s ORDER BY ordem ASC", (user["id"],))
+        links = cursor.fetchall()
+        
+        cursor.close()
+        conn.close()
+        
+        user["links"] = links
+        return userf
