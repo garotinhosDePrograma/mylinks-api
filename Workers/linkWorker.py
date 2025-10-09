@@ -2,7 +2,7 @@ from Repositories.linkRepository import LinkRepository
 
 repo = LinkRepository()
 
-class LinkService:
+class LinkWorker:
     def listar(self, usuario_id):
         return repo.get_all(usuario_id)
     
@@ -23,3 +23,4 @@ class LinkService:
     def reordenar(self, usuario_id, links):
         repo.reorder(usuario_id, links)
         return {"message": "Links reordenados com sucesso"}
+
