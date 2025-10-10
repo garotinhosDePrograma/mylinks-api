@@ -1,4 +1,4 @@
-from Utils.db import get_db
+from Utils.db_railway import get_db
 
 class LinkRepository:
     def getAll(self, usuario_id):
@@ -55,3 +55,4 @@ class LinkRepository:
         cursor.close()
         conn.close()
         return True
+
