@@ -1,4 +1,4 @@
-from Utils.db import get_db
+from Utils.db_railway import get_db
 from Models.user import User
 
 class UserRepository:
