@@ -1,7 +1,6 @@
 import mysql.connector
 import os
 from urllib.parse import urlparse
-from mysql.connector import Error
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -14,7 +13,7 @@ config = {
     'port': parsed_url.port,
     'user': parsed_url.username,
     'password': parsed_url.password,
-    'database': parsed_url.path.lstrip('/'),
+    'database': parsed_url.path.decode('utf-8').lstrip('/') if isinstance(parsed_url.path, bytes) else parsed_url.path.lstrip('/'),
     'ssl_disabled': False,
 }
 
