@@ -4,10 +4,10 @@ repo = LinkRepository()
 
 class LinkWorker:
     def listar(self, usuario_id):
-        return repo.get_all(usuario_id)
+        return repo.getAll(usuario_id)
     
     def criar(self, usuario_id, titulo, url):
-        links = repo.get_all(usuario_id)
+        links = repo.getAll(usuario_id)
         nova_ordem = len(links) + 1
         repo.create(usuario_id, titulo, url, nova_ordem)
         return {"message": "Link adicionado com sucesso"}
@@ -23,4 +23,5 @@ class LinkWorker:
     def reordenar(self, usuario_id, links):
         repo.reorder(usuario_id, links)
         return {"message": "Links reordenados com sucesso"}
+
 
