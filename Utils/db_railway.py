@@ -2,6 +2,9 @@ import mysql.connector
 import os
 from urllib.parse import urlparse
 from mysql.connector import Error
+from dotenv import load_dotenv
+
+load_dotenv()
 
 connection_url = os.getenv('CONN_URL')
 parse_url = urlparse(connection_url)
@@ -16,5 +19,4 @@ config = {
 }
 
 def get_db():
-    try:
-        
+    return mysql.connector.connect(**config)
