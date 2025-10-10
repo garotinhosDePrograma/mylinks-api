@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 connection_url = os.getenv('CONN_URL')
-parse_url = urlparse(connection_url)
+parsed_url = urlparse(connection_url)
 
 config = {
     'host': parsed_url.hostname,
