@@ -57,7 +57,7 @@ class UserRepository:
         cursor = conn.cursor()
         cursor.execute(
             "UPDATE usuarios SET foto_perfil = %s WHERE id = %s",
-            (usuario_id, image_url)
+            (image_url, usuario_id)
         )
         conn.commit()
         cursor.close()
