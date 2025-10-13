@@ -31,6 +31,7 @@ def public_profile(username):
 @user_bp.route("/auth/upload", methods=["POST"])
 @token_required
 def upload_foto(usuario_id):
+    print(request.files)
     if "file" not in request.files:
         return jsonify({"error": "Nenhum arquivo enviado"}), 400
     
