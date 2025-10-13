@@ -25,8 +25,8 @@ def login():
     return jsonify(worker.login(email, senha))
 
 @user_bp.route("/user/<string:username>", methods=["GET"])
-def public_profile():
-    return jsonify(worker.get_public_profile())
+def public_profile(username):
+    return jsonify(worker.get_public_profile(username))
 
 @user_bp.route("/auth/upload", methods=["POST"])
 @token_required
