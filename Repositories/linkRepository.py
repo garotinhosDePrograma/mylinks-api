@@ -35,7 +35,7 @@ class LinkRepository:
         return True
     
     def delete(self, id, usuario_id):
-        conn = get_connection()
+        conn = get_db()
         cursor = conn.cursor()
         cursor.execute("DELETE FROM links WHERE id = %s AND usuario_id = %s", (id, usuario_id))
         conn.commit()
@@ -44,7 +44,7 @@ class LinkRepository:
         return True
 
     def reorder(self, usuario_id, links):
-        conn = get_connection()
+        conn = get_db()
         cursor = conn.cursor()
         for link in links:
             cursor.execute(
@@ -55,4 +55,3 @@ class LinkRepository:
         cursor.close()
         conn.close()
         return True
-

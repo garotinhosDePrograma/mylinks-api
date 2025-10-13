@@ -26,7 +26,7 @@ def login():
 
 @user_bp.route("/user/<string:username>", methods=["GET"])
 def public_profile():
-    return jsonify(worker.get_public_profile(username))
+    return jsonify(worker.get_public_profile())
 
 @user_bp.route("/auth/upload", methods=["POST"])
 @token_required
@@ -48,4 +48,4 @@ def upload_foto(usuario_id):
     path = os.path.join("uploads", secure_filename(filename))
     file.save(path)
     
-    return jsonify(worker.upload_foto_perfil(usuario_id, filename))
+    return jsonify(worker.update_foto_perfil(usuario_id, filename))

@@ -38,4 +38,3 @@ def delete_link(usuario_id, id):
 def reorder_links(usuario_id):
     data = request.get_json()
     return jsonify(worker.reordenar(usuario_id, data))
-

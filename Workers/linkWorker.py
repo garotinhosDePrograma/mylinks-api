@@ -23,5 +23,3 @@ class LinkWorker:
     def reordenar(self, usuario_id, links):
         repo.reorder(usuario_id, links)
         return {"message": "Links reordenados com sucesso"}
-
-
