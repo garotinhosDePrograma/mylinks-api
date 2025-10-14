@@ -27,7 +27,7 @@ class LinkRepository:
         cursor = conn.cursor()
         cursor.execute(
             "UPDATE links SET titulo = %s, url = %s WHERE id = %s AND usuario_id = %s",
-            (id, usuario_id, titulo, url)
+            (titulo, url, id, usuario_id)
         )
         conn.commit()
         cursor.close()
@@ -54,4 +54,5 @@ class LinkRepository:
         conn.commit()
         cursor.close()
         conn.close()
+
         return True
