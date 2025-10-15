@@ -25,10 +25,7 @@ class LinkRepository:
     def update(self, titulo, url, id, usuario_id):
         conn = get_db()
         cursor = conn.cursor()
-        cursor.execute(
-            "UPDATE links SET titulo = %s, url = %s WHERE id = %s AND usuario_id = %s",
-            (titulo, url, id, usuario_id)
-        )
+        cursor.execute("UPDATE links SET titulo = %s, url = %s WHERE id = %s AND usuario_id = %s", (titulo, url, id, usuario_id))
         conn.commit()
         cursor.close()
         conn.close()
@@ -56,4 +53,5 @@ class LinkRepository:
         conn.close()
 
         return True
+
 
