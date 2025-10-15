@@ -301,11 +301,8 @@ Reorganiza a ordem dos links.
 ## 🧾 **6. Variáveis de Ambiente (.env)**
 
 ```env
-DB_HOST=localhost
-DB_USER=root
-DB_PASS=senha
-DB_NAME=mylinks_db
-JWT_SECRET=segredo123
+CONN_URL='railway_url'
+SECRET='segredo123'
 ```
 
 Essas variáveis são lidas em `Utils/db.py` e `Utils/auth.py`.
