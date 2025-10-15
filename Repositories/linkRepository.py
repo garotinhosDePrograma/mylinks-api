@@ -22,7 +22,7 @@ class LinkRepository:
         conn.close()
         return True
 
-    def update(self, id, usuario_id, titulo, url):
+    def update(self, titulo, url, id, usuario_id):
         conn = get_db()
         cursor = conn.cursor()
         cursor.execute(
@@ -56,3 +56,4 @@ class LinkRepository:
         conn.close()
 
         return True
+
