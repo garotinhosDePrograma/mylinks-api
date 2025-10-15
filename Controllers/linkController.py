@@ -26,7 +26,7 @@ def update_link(usuario_id, id):
     data = request.get_json()
     titulo = data.get("titulo")
     url = data.get("url")
-    return jsonify(worker.update(usuario_id, id, titulo, url))
+    return jsonify(worker.update(titulo, url, id, usuario_id))
 
 @link_bp.route("/links/<int:id>", methods=["DELETE"])
 @token_required
@@ -38,3 +38,4 @@ def delete_link(usuario_id, id):
 def reorder_links(usuario_id):
     data = request.get_json()
     return jsonify(worker.reorder(usuario_id, data))
+
