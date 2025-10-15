@@ -17,10 +17,11 @@ class LinkWorker:
         return {"message": "Link atualizado com sucesso"}
     
     def delete(self, usuario_id, id):
-        repo.delete(usuario_id, id)
+        repo.delete(id, usuario_id)
         return {"message": "Link removido com sucesso"}
 
     def reorder(self, usuario_id, links):
         repo.reorder(usuario_id, links)
         return {"message": "Links reordenados com sucesso"}
+
 
