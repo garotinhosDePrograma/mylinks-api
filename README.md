@@ -1,9 +1,5 @@
 # mylinks-api
 
-Excelente pedido, Luiz 👏 — isso vai ser perfeito tanto pra **documentação do projeto** quanto pra **explicação na apresentação final** da UC.
-
-Abaixo está um **guia completo do backend do MyLinks**, com a **estrutura de diretórios**, as **rotas disponíveis**, o **fluxo de funcionamento** e o **formato das respostas da API**.
-
 ---
 
 # 🧭 **Guia do Backend — Projeto MyLinks**
