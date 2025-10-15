@@ -34,7 +34,7 @@ class LinkRepository:
     def delete(self, id, usuario_id):
         conn = get_db()
         cursor = conn.cursor()
-        cursor.execute("DELETE FROM links WHERE id = %s AND usuario_id = %s", (id, usuario_id))
+        cursor.execute("DELETE * FROM links WHERE id = %s AND usuario_id = %s", (id, usuario_id))
         conn.commit()
         cursor.close()
         conn.close()
@@ -53,5 +53,6 @@ class LinkRepository:
         conn.close()
 
         return True
+
 
 
