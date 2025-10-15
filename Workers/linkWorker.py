@@ -12,14 +12,15 @@ class LinkWorker:
         repo.create(usuario_id, titulo, url, nova_ordem)
         return {"message": "Link adicionado com sucesso"}
     
-    def update(self, usuario_id, id, titulo, url):
-        repo.update(id, usuario_id, titulo, url)
+    def update(self, titulo, url, id, usuario_id):
+        repo.update(titulo, url, id, usuario_id)
         return {"message": "Link atualizado com sucesso"}
     
     def delete(self, usuario_id, id):
-        repo.delete(id, usuario_id)
+        repo.delete(usuario_id, id)
         return {"message": "Link removido com sucesso"}
 
     def reorder(self, usuario_id, links):
         repo.reorder(usuario_id, links)
         return {"message": "Links reordenados com sucesso"}
+
