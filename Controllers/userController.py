@@ -39,20 +39,18 @@ def public_profile(username):
 @user_bp.route("/auth/upload", methods=["POST"])
 @token_required
 def upload_foto(usuario_id):
-    print(request.files)
     if "file" not in request.files:
         return jsonify({"error": "Nenhum arquivo enviado"}), 400
-    
+
     file = request.files["file"]
-    
     if file.filename == "":
         return jsonify({"error": "Arquivo inválido"}), 400
-    
+
     extensoes = {"png", "jpg", "jpeg"}
     ext = file.filename.rsplit(".", 1)[-1].lower()
     if ext not in extensoes:
         return jsonify({"error": "Formato não permitido"}), 400
-    
+
     try:
         upload_result = cloudinary.uploader.upload(
             file,
@@ -61,10 +59,10 @@ def upload_foto(usuario_id):
             overwrite=True,
             resource_type="image"
         )
-        
+
         image_url = upload_result["secure_url"]
-        return jsonify(worker.update_foto_perfol(usuario_id, image_url))
-    
+
+        return jsonify(worker.update_foto_perfil(usuario_id, image_url))
     except Exception as e:
         print("Erro no upload:", e)
         return jsonify({"error": "Falha ao enviar imagem"}), 500
