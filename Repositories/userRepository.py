@@ -49,7 +49,7 @@ class UserRepository:
             cursor.execute("SELECT id, username, foto_perfil FROM usuarios WHERE username = %s", (username,))
             user = cursor.fetchone()
 
-            if not user or user == null or user is None:
+            if not user or user is None:
                 cursor.close()
                 conn.close()
                 return None
