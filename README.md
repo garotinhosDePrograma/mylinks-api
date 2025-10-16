@@ -315,16 +315,3 @@ Essas variáveis são lidas em `Utils/db.py` e `Utils/auth.py`.
 2. **Dashboard (autenticado)** → CRUD dos links
 3. **Upload (autenticado)** → atualiza foto de perfil
 4. **Página pública** → `/user/:username` mostra tudo pro visitante
-
----
-
-## ✅ **8. Status Final**
-
-✔ Estrutura modularizada (MVC limpo)
-✔ Todas as rotas implementadas
-✔ Segurança JWT + senhas hashadas
-✔ Banco relacional com integridade
-✔ Upload funcional
-✔ Deploy pronto
-
----
