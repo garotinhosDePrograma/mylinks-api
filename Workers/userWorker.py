@@ -32,7 +32,7 @@ class UserWorker:
         user = repo.get_public_profile(username)
         if not user:
             return {"error": "Usuário não encontrado"}, 404
-        return user
+        return {"success": user}, 200
 
     def update_foto_perfil(self, usuario_id, image_url):
         repo.update_foto(usuario_id, image_url)
