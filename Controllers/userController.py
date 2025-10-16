@@ -5,6 +5,9 @@ from Workers.userWorker import UserWorker
 from werkzeug.utils import secure_filename
 from Utils.auth import token_required
 import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 user_bp = Blueprint("usuario", __name__)
 worker = UserWorker()
