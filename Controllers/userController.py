@@ -39,6 +39,10 @@ def login():
 def public_profile(username):
     return jsonify(worker.get_public_profile(username))
 
+@user_bp.route("/<string:username>", methods=["GET"])
+def short_url(username):
+    return redirect(f"https://mylinks-352x.onrender.com/profile.html?user={username}")
+
 @user_bp.route("/auth/upload", methods=["POST"])
 @token_required
 def upload_foto(usuario_id):
