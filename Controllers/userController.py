@@ -1,4 +1,4 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, redirect
 import cloudinary
 import cloudinary.uploader
 from Workers.userWorker import UserWorker
