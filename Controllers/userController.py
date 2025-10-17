@@ -43,7 +43,9 @@ def public_profile(username):
 
 @user_bp.route("/<string:username>", methods=["GET"])
 def short_url(username):
-    username = repo.get
+    username = repo.find_by_username(username)
+    if username is None:
+        return jsonify({"error": "Usuário não encontrado"}), 404
     return redirect(f"https://mylinks-352x.onrender.com/profile.html?user={username}")
 
 @user_bp.route("/auth/upload", methods=["POST"])
