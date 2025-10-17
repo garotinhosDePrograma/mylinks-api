@@ -30,7 +30,7 @@ class UserWorker:
 
     def get_public_profile(self, username):
         user = repo.get_public_profile(username)
-        if not user:
+        if user is None:
             return {"error": "Usuário não encontrado"}, 404
         return user
 
