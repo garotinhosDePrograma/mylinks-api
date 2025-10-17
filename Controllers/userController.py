@@ -2,6 +2,7 @@ from flask import Blueprint, request, jsonify, redirect
 import cloudinary
 import cloudinary.uploader
 from Workers.userWorker import UserWorker
+from Repositories.userRepository import UserRepository
 from werkzeug.utils import secure_filename
 from Utils.auth import token_required
 import os
@@ -11,6 +12,7 @@ load_dotenv()
 
 user_bp = Blueprint("usuario", __name__)
 worker = UserWorker()
+repo = UserRepository()
 
 cloudinary.config(
     cloud_name=os.getenv("CLOUDINARY_CLOUD_NAME"),
@@ -41,6 +43,7 @@ def public_profile(username):
 
 @user_bp.route("/<string:username>", methods=["GET"])
 def short_url(username):
+    username = repo.get
     return redirect(f"https://mylinks-352x.onrender.com/profile.html?user={username}")
 
 @user_bp.route("/auth/upload", methods=["POST"])
