@@ -1,4 +1,5 @@
 from flask import Blueprint, request, jsonify, redirect
+from flask_cors import cross_origin
 import cloudinary
 import cloudinary.uploader
 from Workers.userWorker import UserWorker
@@ -36,6 +37,7 @@ def login():
     return jsonify(worker.login(email, senha))
 
 @user_bp.route("/auth/refresh", methods=["POST"])
+@cross_origin()
 def refresh_token():
     data = request.headers.get("Authorization")
     
