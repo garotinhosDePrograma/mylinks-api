@@ -21,12 +21,26 @@ class UserWorker:
         if not user or not bcrypt.checkpw(senha.encode("utf-8"), user["senha"].encode("utf-8")):
             return {"error": "Credenciais inválidas"}, 401
         
-        token = jwt.encode(
-            {"id": user["id"], "exp": datetime.utcnow() + timedelta(hours=4)},
+        access_token = jwt.encode(
+            {"id": user["id"], "exp": datetime.utcnow() + timedelta(hours=1)},
             SECRET_KEY,
             algorithm="HS256"
         )
-        return {"token": token, "user": {"id": user["id"], "username": user["username"]}}
+
+        refresh_token = jwt.encode(
+            {"id": user["id"], "exp": datetime.utcnow() + timedelta(days=7), "type":"refresh"},
+            SECRET_KEY,
+            algorithm="HS256"
+        )
+        
+        return {
+            "access_token": access_token,
+            "refresh_token": refresh_token,
+            "user": {
+                "id": user["id"],
+                "username": user["username"]
+            }
+        }
 
     def get_public_profile(self, username):
         user = repo.get_public_profile(username)
