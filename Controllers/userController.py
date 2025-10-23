@@ -35,6 +35,33 @@ def login():
     senha = data.get("senha")
     return jsonify(worker.login(email, senha))
 
+@user_bp.route("/auth/refresh", methods=["POST"])
+def refresh_token():
+    data = request.headers.get("Authorization")
+    
+    if not data:
+        return jsonify({"error": "Token não fornecido"}), 401
+    
+    token = data.split(" ")[1] if " " in data else data
+    
+    try:
+        decoded = jwt.decode(token, os.getenv("SECRET_KEY"), algorithms=["HS256"])
+        
+        if decoded.get("type") != "refresh":
+            return jsonify({"error": "Token inválido para refresh"}), 401
+        
+        new_access_token = jwt.encode(
+            {"id": user["id"], "exp": datetime.utcnow() + timedelta(hours=1)},
+            os.getenv("SECRET_KEY"),
+            algorithm="HS256"
+        )
+        return jsonify({"access_token": new_access_token})
+    
+    except jwt.ExpiredSignatureError:
+        return jsonify({"error": "Refresh token expirado"}), 401
+    except jwt.InvalidTokenError:
+        return jsonify({"error": "Token inválido"}), 401
+
 @user_bp.route("/user/<string:username>", methods=["GET"])
 def public_profile(username):
     return jsonify(worker.get_public_profile(username))
