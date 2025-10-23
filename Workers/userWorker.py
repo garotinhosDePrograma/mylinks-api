@@ -38,7 +38,8 @@ class UserWorker:
             "refresh_token": refresh_token,
             "user": {
                 "id": user["id"],
-                "username": user["username"]
+                "username": user["username"],
+                "email": user["email"]
             }
         }
 
