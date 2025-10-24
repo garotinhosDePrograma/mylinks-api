@@ -95,7 +95,6 @@ def short_url(username):
 # ==============================================
 @user_bp.route("/auth/upload", methods=["POST"])
 @token_required
-@cross_origin()
 def upload_foto(usuario_id):
     if "file" not in request.files:
         return jsonify({"error": "Nenhum arquivo enviado"}), 400
