@@ -11,7 +11,7 @@ class LinkWorker:
         nova_ordem = len(links) + 1
         sucesso = repo.create(usuario_id, titulo, url, nova_ordem)
         if not sucesso:
-            return {"error": "Erro ai adicionar link"}, 500
+            return {"error": "Erro ao adicionar link"}, 500
         return {"message": "Link adicionado com sucesso"}
     
     def update(self, titulo, url, id, usuario_id):
