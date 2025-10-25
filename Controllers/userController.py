@@ -63,7 +63,7 @@ def refresh_token():
 
         # ✅ Corrigido: usar o id do token decodificado
         new_access_token = jwt.encode(
-            {"id": decoded["id"], "exp": datetime.utcnow() + timedelta(hours=1)},
+            {"id": decoded["id"], "exp": datetime.utcnow() + timedelta(hours=1), "type": "access"},
             os.getenv("SECRET_KEY"),
             algorithm="HS256"
         )
