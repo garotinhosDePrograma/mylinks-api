@@ -12,6 +12,11 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 
 class UserWorker:
     def register(self, username, email, senha):
+        if repo.find_by_username(username):
+            return {"error": "Username já existente"}, 400
+        if repo.find_by_email(email):
+            return {"error": "E-mail já existente"}, 400
+        
         hashed = bcrypt.hashpw(senha.encode("utf-8"), bcrypt.gensalt())
         repo.create(username, email, hashed.decode("utf-8"))
         return {"message": "Usuário criado com sucesso!"}
