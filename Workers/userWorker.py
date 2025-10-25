@@ -27,13 +27,13 @@ class UserWorker:
             return {"error": "Credenciais inválidas"}, 401
         
         access_token = jwt.encode(
-            {"id": user["id"], "exp": datetime.utcnow() + timedelta(hours=1)},
+            {"id": user["id"], "exp": datetime.utcnow() + timedelta(hours=1), "type": "access"},
             SECRET_KEY,
             algorithm="HS256"
         )
 
         refresh_token = jwt.encode(
-            {"id": user["id"], "exp": datetime.utcnow() + timedelta(days=7), "type":"refresh"},
+            {"id": user["id"], "exp": datetime.utcnow() + timedelta(days=7), "type": "refresh"},
             SECRET_KEY,
             algorithm="HS256"
         )
