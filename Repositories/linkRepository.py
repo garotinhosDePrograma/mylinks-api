@@ -1,5 +1,6 @@
 from Utils.db_railway import get_db
 from mysql.connector import Error
+import logging
 
 class LinkRepository:
     def getAll(self, usuario_id):
@@ -12,7 +13,7 @@ class LinkRepository:
             conn.close()
             return links
         except Error as e:
-            print(f"ERRO: {e}")
+            logging.error(f"Erro ao tentar buscar links: {e}")
 
     def create(self, usuario_id, titulo, url, ordem):
         try:
@@ -27,7 +28,7 @@ class LinkRepository:
             conn.close()
             return True
         except Error as e:
-            print(f"ERRO: {e}")
+            logging.error(f"Erro ao tentar criar link: {e}")
 
     def update(self, titulo, url, id, usuario_id):
         try:
@@ -39,7 +40,7 @@ class LinkRepository:
             conn.close()
             return True
         except Error as e:
-            print(f"ERRO: {e}")
+            logging.error(f"Erro ao tentar atualizar link: {e}")
     
     def delete(self, id, usuario_id):
         try:
@@ -51,7 +52,7 @@ class LinkRepository:
             conn.close()
             return True
         except Error as e:
-            print(f"ERRO: {e}")
+            logging.error(f"Erro ao tentar deletar link: {e}")
 
     def reorder(self, usuario_id, links):
         try:
@@ -67,4 +68,4 @@ class LinkRepository:
             conn.close()
             return True
         except Error as e:
-            print(f"ERRO: {e}")
+            logging.error(f"Erro ao tentar reordenar links: {e}")
