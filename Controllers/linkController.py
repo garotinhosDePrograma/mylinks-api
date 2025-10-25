@@ -1,6 +1,7 @@
 from flask import Blueprint, request, jsonify
 from Workers.linkWorker import LinkWorker
 from Utils.auth import token_required
+from Utils.valid_url import is_valid_url
 
 link_bp = Blueprint("links", __name__)
 worker = LinkWorker()
@@ -18,6 +19,8 @@ def create_link(usuario_id):
     url = data.get("url")
     if not all([titulo, url]):
         return jsonify({"error": "Campos Obrigatórios"}), 400
+    if not is_valid_url(url):
+        return jsonify({"error": "URL inválida"}), 400
     return jsonify(worker.create(usuario_id, titulo, url))
 
 @link_bp.route("/links/<int:id>", methods=["PUT"])
@@ -26,6 +29,8 @@ def update_link(usuario_id, id):
     data = request.get_json()
     titulo = data.get("titulo")
     url = data.get("url")
+    if not is_valid_url(url):
+        return jsonify({"error": "URL inválida"}), 400
     return jsonify(worker.update(titulo, url, id, usuario_id))
 
 @link_bp.route("/links/<int:id>", methods=["DELETE"])
