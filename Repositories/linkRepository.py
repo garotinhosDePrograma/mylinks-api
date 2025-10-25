@@ -62,10 +62,9 @@ class LinkRepository:
                     "UPDATE links SET ordem = %s WHERE id = %s AND usuario_id = %s",
                     (link["ordem"], link["id"], usuario_id)
                 )
-                conn.commit()
-                cursor.close()
-                conn.close()
-
-                return True
+            conn.commit()
+            cursor.close()
+            conn.close()
+            return True
         except Error as e:
             print(f"ERRO: {e}")
