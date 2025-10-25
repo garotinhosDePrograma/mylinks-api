@@ -14,6 +14,7 @@ class LinkRepository:
             return links
         except Error as e:
             logging.error(f"Erro ao tentar buscar links: {e}")
+            return None
 
     def create(self, usuario_id, titulo, url, ordem):
         try:
@@ -69,3 +70,4 @@ class LinkRepository:
             return True
         except Error as e:
             logging.error(f"Erro ao tentar reordenar links: {e}")
+
