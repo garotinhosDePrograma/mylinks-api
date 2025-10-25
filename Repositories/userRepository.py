@@ -1,6 +1,7 @@
 from Utils.db_railway import get_db
 from Models.user import User
 from mysql.connector import Error
+import logging
 
 class UserRepository:
     def create(self, username, email, senha):
@@ -16,7 +17,7 @@ class UserRepository:
             conn.close()
             return True
         except Error as e:
-            print(f"ERRO: {e}")
+            logging.error(f"Erro ao tentar criar usuário: {e}")
 
     def find_by_email(self, email):
         try:
@@ -28,7 +29,7 @@ class UserRepository:
             conn.close()
             return user
         except Error as e:
-            print(f"ERRO: {e}")
+            logging.error(f"Erro ao tentar buscar usuário pelo email: {e}")
     
     def find_by_username(self, username):
         try:
@@ -40,7 +41,7 @@ class UserRepository:
             conn.close()
             return user
         except Error as e:
-            print(f"ERRO: {e}")
+            logging.error(f"Erro ao tentar buscar usuário pelo username: {e}")
 
     def get_public_profile(self, username):
         try:
@@ -63,7 +64,7 @@ class UserRepository:
             user["links"] = links
             return user
         except Error as e:
-            print(f"ERRO: {e}")
+            logging.error(f"Erro ao tentar buscar o perfil público do usuário: {e}")
 
     def update_foto(self, usuario_id, image_url):
         try:
@@ -77,4 +78,4 @@ class UserRepository:
             cursor.close()
             conn.close()
         except Error as e:
-            print(f"ERRO: {e}")
+            logging.error(f"Erro ao tentar atualizar a foto de perfil do usuário: {e}")
