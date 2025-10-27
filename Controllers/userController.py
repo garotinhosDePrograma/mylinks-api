@@ -5,7 +5,6 @@ import cloudinary.uploader
 import jwt
 from datetime import datetime, timedelta
 from Workers.userWorker import UserWorker
-from werkzeug.utils import secure_filename
 from Utils.auth import token_required
 import os
 from dotenv import load_dotenv
@@ -21,9 +20,6 @@ cloudinary.config(
     api_secret=os.getenv("CLOUDINARY_API_SECRET")
 )
 
-# ==============================================
-# 🔐 REGISTRO E LOGIN
-# ==============================================
 @user_bp.route("/auth/register", methods=["POST"])
 @cross_origin()
 def register():
@@ -43,9 +39,6 @@ def login():
     senha = data.get("senha")
     return jsonify(worker.login(email, senha))
 
-# ==============================================
-# ♻️ REFRESH TOKEN
-# ==============================================
 @user_bp.route("/auth/refresh", methods=["POST"])
 @cross_origin()
 def refresh_token():
@@ -61,7 +54,6 @@ def refresh_token():
         if decoded.get("type") != "refresh":
             return jsonify({"error": "Token inválido para refresh"}), 401
 
-        # ✅ Corrigido: usar o id do token decodificado
         new_access_token = jwt.encode(
             {"id": decoded["id"], "exp": datetime.utcnow() + timedelta(hours=1), "type": "access"},
             os.getenv("SECRET_KEY"),
@@ -75,24 +67,15 @@ def refresh_token():
     except jwt.InvalidTokenError:
         return jsonify({"error": "Token inválido"}), 401
 
-# ==============================================
-# 👤 PERFIL PÚBLICO
-# ==============================================
 @user_bp.route("/user/<string:username>", methods=["GET"])
 @cross_origin()
 def public_profile(username):
     return jsonify(worker.get_public_profile(username))
 
-# ==============================================
-# 🔗 REDIRECIONAMENTO DE PERFIL
-# ==============================================
 @user_bp.route("/<string:username>", methods=["GET"])
 def short_url(username):
     return redirect(f"https://mylinks-352x.onrender.com/profile.html?user={username}")
 
-# ==============================================
-# 🖼️ UPLOAD DE FOTO DE PERFIL
-# ==============================================
 @user_bp.route("/auth/upload", methods=["POST"])
 @token_required
 def upload_foto(usuario_id):
