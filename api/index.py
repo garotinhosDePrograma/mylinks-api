@@ -1,4 +1,5 @@
-from app import app  # se o app.py está na raiz
-from vercel_python_wsgi import make_handler
+from app import app
+from werkzeug.middleware.dispatcher import DispatcherMiddleware
+from werkzeug.serving import run_simple
 
-handler = make_handler(app)
+appication = app
