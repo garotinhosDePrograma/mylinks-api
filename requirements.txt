@@ -6,4 +6,3 @@ bcrypt
 pyjwt
 python-dotenv
 cloudinary==1.41.0
-vercel-python-wsgi
