@@ -61,11 +61,7 @@ class UserWorker:
         return {"message": "Foto de perfil atualizada com sucesso", "foto_perfil": image_url}
     
     def update_username(self, new_username, usuario_id, senha):
-        user = repo.find_by_id(usuario_id)
-        if not user:
-            return {"error": "Usuário não encontrado"}, 404
-        
-        if not bcrypt.checkpw(senha.encode("utf-8"), user["senha"].encode("utf-8")):
+        if not bcrypt.checkpw(senha.encode("utf-8"), usuario_id["senha"].encode("utf-8")):
             return {"error": "Senha incorreta"}, 401
         
         if not len(new_username) < 3 or len(new_username) > 20:
