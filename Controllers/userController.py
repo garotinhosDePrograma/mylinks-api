@@ -108,8 +108,8 @@ def upload_foto(usuario_id):
         return jsonify({"error": "Falha ao enviar imagem"}), 500
 
 @user_bp.route("/auth/update-username", methods=["PUT"])
-@cross_origin
 @token_required
+@cross_origin()
 def update_username(usuario_id):
     data = request.get_json()
     new_username = data.get("new_username")
@@ -119,8 +119,8 @@ def update_username(usuario_id):
     return jsonify(worker.update_username(new_username, usuario_id, senha))
 
 @user_bp.route("/auth/update-email", methods=["PUT"])
-@cross_origin()
 @token_required
+@cross_origin()
 def update_email(usuario_id):
     data = request.get_json()
     new_email = data.get("new_email")
@@ -133,8 +133,8 @@ def update_email(usuario_id):
 
 
 @user_bp.route("/auth/update-password", methods=["PUT"])
-@cross_origin()
 @token_required
+@cross_origin()
 def update_password(usuario_id):
     data = request.get_json()
     current_senha = data.get("current_senha")
@@ -147,8 +147,8 @@ def update_password(usuario_id):
 
 
 @user_bp.route("/auth/delete-account", methods=["DELETE"])
-@cross_origin()
 @token_required
+@cross_origin()
 def delete_account(usuario_id):
     data = request.get_json()
     senha = data.get("senha")
