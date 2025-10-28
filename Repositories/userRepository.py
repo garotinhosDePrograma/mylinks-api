@@ -22,8 +22,8 @@ class UserRepository:
     def find_by_id(self, usuario_id):
         try:
             conn = get_db()
-            cursor = conn.cursor()
-            cursor.execute("SELECT * FROM usuarios WHERE id = %s", (usuario_id))
+            cursor = conn.cursor(dictionary=True)
+            cursor.execute("SELECT * FROM usuarios WHERE id = %s", (usuario_id,))
             user = cursor.fetchone()
             cursor.close()
             conn.close()
@@ -92,7 +92,7 @@ class UserRepository:
         except Error as e:
             logging.error(f"Erro ao tentar atualizar a foto de perfil do usuário: {e}")
     
-    def update_username(self, new_username, usuario_id):
+    def update_username(self, usuario_id, new_username):
         try:
             conn = get_db()
             cursor = conn.cursor()

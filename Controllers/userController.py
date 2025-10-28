@@ -113,7 +113,9 @@ def update_username(usuario_id):
     data = request.get_json()
     new_username = data.get("new_username")
     senha = data.get("senha")
-    return jsonify(worker.update_username(new_username, usuario_id, senha))
+    if not all([new_username, senha]):
+        return jsonify({"error": "Campos obrigátorios"}), 400
+    return jsonify(worker.update_username(usuario_id, new_username, senha))
 
 @user_bp.route("/auth/update-email", methods=["PUT"])
 @token_required
