@@ -55,5 +55,78 @@ class UserWorker:
         return user
 
     def update_foto_perfil(self, usuario_id, image_url):
-        repo.update_foto(usuario_id, image_url)
+        sucesso = repo.update_foto(usuario_id, image_url)
+        if not sucesso:
+            return {"error": "Erro ao alterar foto de perfil"}, 500
         return {"message": "Foto de perfil atualizada com sucesso", "foto_perfil": image_url}
+    
+    def update_username(self, new_username, usuario_id, senha):
+        user = repo.find_by_id(usuario_id)
+        if not user:
+            return {"error": "Usuário não encontrado"}, 404
+        
+        if not bcrypt.checkpw(senha.encode("utf-8"), user["senha"].encode("utf-8")):
+            return {"error": "Senha incorreta"}, 401
+        
+        if not len(new_username) < 3 or len(new_username) > 20:
+            return {"error": "Username deve ter entre 3 e 20 caracteres"}, 400
+        
+        existing_user = repo.find_by_username(new_username)
+        if existing_user and existing_user["id"] != usuario_id:
+            return {"error": "Username já está em uso"}, 400
+
+        sucesso = repo.update_username(new_username, usuario_id)
+        if repo.find_by_username(new_username):
+            return {"error": "Username já existente"}, 400
+        if not sucesso:
+            return {"error": "Erro ao alterar username"}, 500
+        return {"message": "Username atualizado com sucesso", "username": new_username}
+    
+    def update_email(self, new_email, usuario_id, senha):
+        user = repo.find_by_id(usuario_id)
+        if not user:
+            return {"error": "Usuário não encontrado"}, 404
+        
+        if not bcrypt.checkpw(senha.encode("utf-8"), user["senha"].encode("utf-8")):
+            return {"error": "Senha incorreta"}, 401
+        
+        existing_user = repo.find_by_email(new_email)
+        if existing_user and existing_user["id"] != usuario_id:
+            return {"error": "E-mail já está em uso"}, 400
+        
+        sucesso = repo.update_email(new_email, usuario_id)
+        if not sucesso:
+            return {"error": "Erro ao alterar email"}, 500
+        return {"message": "E-mail alterado com sucesso", "email": new_email}
+    
+    def update_password(self, usuario_id, current_senha, new_senha):
+        user = repo.find_by_id(usuario_id)
+        if not user:
+            return {"error": "Usuário não encontrado"}, 404
+        
+        if not bcrypt.checkpw(current_senha.encode("utf-8"), user["senha"].encode("utf-8")):
+            return {"error": "Senha Atual incorreta"}, 401
+        
+        if len(new_senha) < 6:
+            return {"error": "Nove senha deve conter no mínimo 6 caracteres"}, 400
+        
+        new_senha = bcrypt.hashpw(new_senha.encode("utf-8"), bcrypt.gensalt())
+        
+        sucesso = repo.update_email(new_senha, usuario_id)
+        if not sucesso:
+            return {"error": "Erro ao alterar senha"}, 500
+        return {"message": "Senha alterada com sucesso"}
+    
+    def delete_account(self, usuario_id, senha):
+        user = repo.find_by_id(usuario_id)
+        if not user:
+            return {"error": "Usuário não encontrado"}, 404
+
+        if not bcrypt.checkpw(senha.encode("utf-8"), user["senha"].encode("utf-8")):
+            return {"error": "Senha incorreta"}, 401
+
+        sucesso = repo.delete_user(usuario_id)
+        if not sucesso:
+            return {"error": "Erro ao excluir conta"}, 500
+
+        return {"message": "Conta excluída com sucesso"}

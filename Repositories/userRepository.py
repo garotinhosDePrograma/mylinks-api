@@ -18,6 +18,18 @@ class UserRepository:
             return True
         except Error as e:
             logging.error(f"Erro ao tentar criar usuário: {e}")
+    
+    def find_by_id(self, usuario_id):
+        try:
+            conn = get_db()
+            cursor = conn.cursor()
+            cursor.execute("SELECT * FROM usuarios WHERE id = %s", (usuario_id))
+            user = cursor.fetchone()
+            cursor.close()
+            conn.close()
+            return user
+        except Error as e:
+            logging.error(f"Erro ao buscar usuário por id: {e}")
 
     def find_by_email(self, email):
         try:
@@ -64,7 +76,7 @@ class UserRepository:
             user["links"] = links
             return user
         except Error as e:
-            logging.error(f"Erro ao tentar buscar o perfil público do usuário: {e}")
+            logging.error(f"Erro ao tentar buscar o perfil público: {e}")
 
     def update_foto(self, usuario_id, image_url):
         try:
@@ -79,3 +91,63 @@ class UserRepository:
             conn.close()
         except Error as e:
             logging.error(f"Erro ao tentar atualizar a foto de perfil do usuário: {e}")
+    
+    def update_username(self, new_username, usuario_id):
+        try:
+            conn = get_db()
+            cursor = conn.cursor()
+            cursor.execute(
+                "UPDATE usuarios SET username = %s WHERE id = %s",
+                (new_username, usuario_id)
+            )
+            conn.commit()
+            cursor.close()
+            conn.close()
+            return True
+        except Error as e:
+            logging.error(f"Erro ao tentar atualizar username: {e}")
+            return False
+    
+    def update_email(self, new_email, usuario_id):
+        try:
+            conn = get_db()
+            cursor = conn.cursor()
+            cursor.execute(
+                "UPDATE usuarios SET email = %s WHERE id = %s",
+                (new_email, usuario_id)
+            )
+            conn.commit()
+            cursor.close()
+            conn.close()
+            return True
+        except Error as e:
+            logging.error(f"Erro ao tentar atualizar email: {e}")
+            return False
+    
+    def update_senha(self, new_senha, usuario_id):
+        try:
+            conn = get_db()
+            cursor = conn.cursor()
+            cursor.execute(
+                "UPDATE usuarios SET senha = %s WHERE id = %s",
+                (new_senha, usuario_id)
+            )
+            conn.commit()
+            cursor.close()
+            conn.close()
+            return True
+        except Error as e:
+            logging.error(f"Erro ao tentar atualizar senha: {e}")
+            return False
+    
+    def delete_user(self, usuario_id):
+        try:
+            conn = get_db()
+            cursor = conn.cursor()
+            cursor.execute("DELETE FROM usuarios WHERE id = %s", (usuario_id))
+            cursor.close()
+            conn.close()
+            return True
+        except Error as e:
+            logging.error(f"Erro ao tentar deletar conta do usuário: {e}")
+            return False
