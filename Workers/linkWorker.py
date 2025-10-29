@@ -5,7 +5,7 @@ repo = LinkRepository()
 
 class LinkWorker:
     def getAll(self, usuario_id):
-        return jsonify({repo.getAll(usuario_id)}), 200
+        return repo.getAll(usuario_id)
     
     def create(self, usuario_id, titulo, url):
         links = repo.getAll(usuario_id)

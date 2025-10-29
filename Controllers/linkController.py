@@ -9,7 +9,7 @@ worker = LinkWorker()
 @link_bp.route("/links", methods=["GET"])
 @token_required
 def get_links(usuario_id):
-    return worker.getAll(usuario_id)
+    return worker.getAll(usuario_id), 200
 
 @link_bp.route("/links", methods=["POST"])
 @token_required
