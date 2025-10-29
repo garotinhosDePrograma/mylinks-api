@@ -29,7 +29,7 @@ def register():
     senha = data.get("senha")
     if not all([username, email, senha]):
         return jsonify({"error": "Campos Obrigatórios"}), 400
-    return jsonify(worker.register(username, email, senha))
+    return worker.register(username, email, senha)
 
 @user_bp.route("/auth/login", methods=["POST"])
 @cross_origin()
@@ -37,7 +37,7 @@ def login():
     data = request.get_json()
     email = data.get("email")
     senha = data.get("senha")
-    return jsonify(worker.login(email, senha))
+    return worker.login(email, senha)
 
 @user_bp.route("/auth/refresh", methods=["POST"])
 @cross_origin()
@@ -70,7 +70,7 @@ def refresh_token():
 @user_bp.route("/user/<string:username>", methods=["GET"])
 @cross_origin()
 def public_profile(username):
-    return jsonify(worker.get_public_profile(username))
+    return worker.get_public_profile(username)
 
 @user_bp.route("/<string:username>", methods=["GET"])
 def short_url(username):
@@ -102,7 +102,7 @@ def upload_foto(usuario_id):
 
         image_url = upload_result["secure_url"]
 
-        return jsonify(worker.update_foto_perfil(usuario_id, image_url))
+        return worker.update_foto_perfil(usuario_id, image_url)
     except Exception as e:
         print("Erro no upload:", e)
         return jsonify({"error": "Falha ao enviar imagem"}), 500
@@ -128,7 +128,7 @@ def update_email(usuario_id):
     
     if not all([new_email, password]):
         return jsonify({"error": "Campos obrigatórios"}), 400
-    return jsonify(worker.update_email(usuario_id, new_email, password))
+    return worker.update_email(usuario_id, new_email, password)
 
 
 @user_bp.route("/auth/update-password", methods=["PUT"])
@@ -140,7 +140,7 @@ def update_password(usuario_id):
     
     if not all([current_password, new_password]):
         return jsonify({"error": "Campos obrigatórios"}), 400
-    return jsonify(worker.update_password(usuario_id, current_password, new_password))
+    return worker.update_password(usuario_id, current_password, new_password)
 
 
 @user_bp.route("/auth/delete-account", methods=["DELETE"])
@@ -151,4 +151,4 @@ def delete_account(usuario_id):
     
     if not password:
         return jsonify({"error": "Senha é obrigatória"}), 400
-    return jsonify(worker.delete_account(usuario_id, password))
+    return worker.delete_account(usuario_id, password)

@@ -14,18 +14,18 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 class UserWorker:
     def register(self, username, email, senha):
         if repo.find_by_username(username):
-            return {"error": "Username já existente"}, 400
+            return jsonify({"error": "Username já existente"}), 400
         if repo.find_by_email(email):
-            return {"error": "E-mail já existente"}, 400
+            return jsonify({"error": "E-mail já existente"}), 400
         
         hashed = bcrypt.hashpw(senha.encode("utf-8"), bcrypt.gensalt())
         repo.create(username, email, hashed.decode("utf-8"))
-        return {"message": "Usuário criado com sucesso!"}
+        return jsonify({"message": "Usuário criado com sucesso!"}), 200
     
     def login(self, email, senha):
         user = repo.find_by_email(email)
         if not user or not bcrypt.checkpw(senha.encode("utf-8"), user["senha"].encode("utf-8")):
-            return {"error": "Credenciais inválidas"}, 401
+            return jsonify({"error": "Credenciais inválidas"}), 401
         
         access_token = jwt.encode(
             {"id": user["id"], "exp": datetime.utcnow() + timedelta(hours=1), "type": "access"},
@@ -39,7 +39,7 @@ class UserWorker:
             algorithm="HS256"
         )
         
-        return {
+        return jsonify({
             "access_token": access_token,
             "refresh_token": refresh_token,
             "user": {
@@ -47,19 +47,19 @@ class UserWorker:
                 "username": user["username"],
                 "email": user["email"]
             }
-        }
+        }), 200
 
     def get_public_profile(self, username):
         user = repo.get_public_profile(username)
         if user is None:
-            return {"error": "Usuário não encontrado"}, 404
+            return jsonify({"error": "Usuário não encontrado"}), 404
         return user
 
     def update_foto_perfil(self, usuario_id, image_url):
         sucesso = repo.update_foto(usuario_id, image_url)
         if not sucesso:
-            return {"error": "Erro ao alterar foto de perfil"}, 500
-        return {"message": "Foto de perfil atualizada com sucesso", "foto_perfil": image_url}
+            return jsonify({"error": "Erro ao alterar foto de perfil"}), 500
+        return jsonify({"message": "Foto de perfil atualizada com sucesso", "foto_perfil": image_url}), 200
 
     def update_username(self, usuario_id, new_username, password):
         user = repo.find_by_id(usuario_id)
@@ -84,47 +84,47 @@ class UserWorker:
     def update_email(self, usuario_id, new_email, password):
         user = repo.find_by_id(usuario_id)
         if not user:
-            return {"error": "Usuário não encontrado"}, 404
+            return jsonify({"error": "Usuário não encontrado"}), 404
 
         if not bcrypt.checkpw(password.encode("utf-8"), user["senha"].encode("utf-8")):
-            return {"error": "Senha incorreta"}, 401
+            return jsonify({"error": "Senha incorreta"}), 401
 
         existing_user = repo.find_by_email(new_email)
         if existing_user and existing_user["id"] != usuario_id:
-            return {"error": "E-mail já está em uso"}, 400
+            return jsonify({"error": "E-mail já está em uso"}), 400
 
         sucesso = repo.update_email(usuario_id, new_email)
         if not sucesso:
-            return {"error": "Erro ao atualizar e-mail"}, 500
-        return {"message": "E-mail atualizado com sucesso", "email": new_email}
+            return jsonify({"error": "Erro ao atualizar e-mail"}), 500
+        return jsonify({"message": "E-mail atualizado com sucesso", "email": new_email}), 200
 
     def update_password(self, usuario_id, current_password, new_password):
         user = repo.find_by_id(usuario_id)
         if not user:
-            return {"error": "Usuário não encontrado"}, 404
+            return jsonify({"error": "Usuário não encontrado"}), 404
 
         if not bcrypt.checkpw(current_password.encode("utf-8"), user["senha"].encode("utf-8")):
-            return {"error": "Senha atual incorreta"}, 401
+            return jsonify({"error": "Senha atual incorreta"}), 401
 
         if len(new_password) < 6:
-            return {"error": "Nova senha deve ter no mínimo 6 caracteres"}, 400
+            return jsonify({"error": "Nova senha deve ter no mínimo 6 caracteres"}), 400
 
         new_password_hash = bcrypt.hashpw(new_password.encode("utf-8"), bcrypt.gensalt())
 
         sucesso = repo.update_password(usuario_id, new_password_hash.decode("utf-8"))
         if not sucesso:
-            return {"error": "Erro ao atualizar senha"}, 500
-        return {"message": "Senha atualizada com sucesso"}
+            return jsonify({"error": "Erro ao atualizar senha"}), 500
+        return jsonify({"message": "Senha atualizada com sucesso"}), 200
 
     def delete_account(self, usuario_id, password):
         user = repo.find_by_id(usuario_id)
         if not user:
-            return {"error": "Usuário não encontrado"}, 404
+            return jsonify({"error": "Usuário não encontrado"}), 404
 
         if not bcrypt.checkpw(password.encode("utf-8"), user["senha"].encode("utf-8")):
-            return {"error": "Senha incorreta"}, 401
+            return jsonify({"error": "Senha incorreta"}), 401
 
         sucesso = repo.delete_user(usuario_id)
         if not sucesso:
-            return {"error": "Erro ao excluir conta"}, 500
-        return {"message": "Conta excluída com sucesso"}
+            return jsonify({"error": "Erro ao excluir conta"}), 500
+        return jsonify({"message": "Conta excluída com sucesso"}), 200
