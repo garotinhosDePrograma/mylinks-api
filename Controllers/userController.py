@@ -116,7 +116,7 @@ def update_username(usuario_id):
     
     if not all([new_username, password]):
         return jsonify({"error": "Campos obrigatórios"}), 400
-    return jsonify(worker.update_username(usuario_id, new_username, password))
+    return worker.update_username(usuario_id, new_username, password)
 
 
 @user_bp.route("/auth/update-email", methods=["PUT"])
