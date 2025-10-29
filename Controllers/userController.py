@@ -5,7 +5,6 @@ import cloudinary.uploader
 import jwt
 from datetime import datetime, timedelta
 from Workers.userWorker import UserWorker
-from werkzeug.utils import secure_filename
 from Utils.auth import token_required
 import os
 from dotenv import load_dotenv
@@ -21,9 +20,6 @@ cloudinary.config(
     api_secret=os.getenv("CLOUDINARY_API_SECRET")
 )
 
-# ==============================================
-# 🔐 REGISTRO E LOGIN
-# ==============================================
 @user_bp.route("/auth/register", methods=["POST"])
 @cross_origin()
 def register():
@@ -43,9 +39,6 @@ def login():
     senha = data.get("senha")
     return jsonify(worker.login(email, senha))
 
-# ==============================================
-# ♻️ REFRESH TOKEN
-# ==============================================
 @user_bp.route("/auth/refresh", methods=["POST"])
 @cross_origin()
 def refresh_token():
@@ -61,7 +54,6 @@ def refresh_token():
         if decoded.get("type") != "refresh":
             return jsonify({"error": "Token inválido para refresh"}), 401
 
-        # ✅ Corrigido: usar o id do token decodificado
         new_access_token = jwt.encode(
             {"id": decoded["id"], "exp": datetime.utcnow() + timedelta(hours=1), "type": "access"},
             os.getenv("SECRET_KEY"),
@@ -75,24 +67,15 @@ def refresh_token():
     except jwt.InvalidTokenError:
         return jsonify({"error": "Token inválido"}), 401
 
-# ==============================================
-# 👤 PERFIL PÚBLICO
-# ==============================================
 @user_bp.route("/user/<string:username>", methods=["GET"])
 @cross_origin()
 def public_profile(username):
     return jsonify(worker.get_public_profile(username))
 
-# ==============================================
-# 🔗 REDIRECIONAMENTO DE PERFIL
-# ==============================================
 @user_bp.route("/<string:username>", methods=["GET"])
 def short_url(username):
     return redirect(f"https://mylinks-352x.onrender.com/profile.html?user={username}")
 
-# ==============================================
-# 🖼️ UPLOAD DE FOTO DE PERFIL
-# ==============================================
 @user_bp.route("/auth/upload", methods=["POST"])
 @token_required
 def upload_foto(usuario_id):
@@ -123,3 +106,49 @@ def upload_foto(usuario_id):
     except Exception as e:
         print("Erro no upload:", e)
         return jsonify({"error": "Falha ao enviar imagem"}), 500
+
+@user_bp.route("/auth/update-username", methods=["PUT"])
+@token_required
+def update_username(usuario_id):
+    data = request.get_json()
+    new_username = data.get("newUsername")
+    password = data.get("password")
+    
+    if not all([new_username, password]):
+        return jsonify({"error": "Campos obrigatórios"}), 400
+    return jsonify(worker.update_username(usuario_id, new_username, password))
+
+
+@user_bp.route("/auth/update-email", methods=["PUT"])
+@token_required
+def update_email(usuario_id):
+    data = request.get_json()
+    new_email = data.get("newEmail")
+    password = data.get("password")
+    
+    if not all([new_email, password]):
+        return jsonify({"error": "Campos obrigatórios"}), 400
+    return jsonify(worker.update_email(usuario_id, new_email, password))
+
+
+@user_bp.route("/auth/update-password", methods=["PUT"])
+@token_required
+def update_password(usuario_id):
+    data = request.get_json()
+    current_password = data.get("currentPassword")
+    new_password = data.get("newPassword")
+    
+    if not all([current_password, new_password]):
+        return jsonify({"error": "Campos obrigatórios"}), 400
+    return jsonify(worker.update_password(usuario_id, current_password, new_password))
+
+
+@user_bp.route("/auth/delete-account", methods=["DELETE"])
+@token_required
+def delete_account(usuario_id):
+    data = request.get_json()
+    password = data.get("password")
+    
+    if not password:
+        return jsonify({"error": "Senha é obrigatória"}), 400
+    return jsonify(worker.delete_account(usuario_id, password))

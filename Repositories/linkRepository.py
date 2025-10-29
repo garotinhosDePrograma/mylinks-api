@@ -70,4 +70,3 @@ class LinkRepository:
             return True
         except Error as e:
             logging.error(f"Erro ao tentar reordenar links: {e}")
-
