@@ -129,7 +129,6 @@ def update_username(usuario_id):
 
 @user_bp.route("/auth/update-email", methods=["PUT"])
 @token_required
-@cross_origin()
 def update_email(usuario_id):
     """Atualiza o e-mail do usuário"""
     data = request.get_json()
@@ -144,7 +143,6 @@ def update_email(usuario_id):
 
 @user_bp.route("/auth/update-password", methods=["PUT"])
 @token_required
-@cross_origin()
 def update_password(usuario_id):
     """Atualiza a senha do usuário"""
     data = request.get_json()
@@ -159,7 +157,6 @@ def update_password(usuario_id):
 
 @user_bp.route("/auth/delete-account", methods=["DELETE"])
 @token_required
-@cross_origin()
 def delete_account(usuario_id):
     """Exclui a conta do usuário permanentemente"""
     data = request.get_json()
