@@ -1,3 +1,4 @@
+from flask import jsonify
 import bcrypt
 import jwt
 import os
@@ -63,22 +64,22 @@ class UserWorker:
     def update_username(self, usuario_id, new_username, password):
         user = repo.find_by_id(usuario_id)
         if not user:
-            return {"error": "Usuário não encontrado"}, 404
+            return jsonify({"error": "Usuário não encontrado"}), 404
 
         if not bcrypt.checkpw(password.encode("utf-8"), user["senha"].encode("utf-8")):
-            return {"error": "Senha incorreta"}, 401
+            return jsonify({"error": "Senha incorreta"}), 401
 
         if len(new_username) < 3 or len(new_username) > 20:
-            return {"error": "Username deve ter entre 3 e 20 caracteres"}, 400
+            return jsonify({"error": "Username deve ter entre 3 e 20 caracteres"}), 400
 
         existing_user = repo.find_by_username(new_username)
         if existing_user and existing_user["id"] != usuario_id:
-            return {"error": "Username já está em uso"}, 400
+            return jsonify({"error": "Username já está em uso"}), 400
 
         sucesso = repo.update_username(usuario_id, new_username)
         if not sucesso:
-            return {"error": "Erro ao atualizar username"}, 500
-        return {"message": "Username atualizado com sucesso", "username": new_username}
+            return jsonify({"error": "Erro ao atualizar username"}), 500
+        return jsonify({"message": "Username atualizado com sucesso", "username": new_username}), 200
 
     def update_email(self, usuario_id, new_email, password):
         user = repo.find_by_id(usuario_id)
