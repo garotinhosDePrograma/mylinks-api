@@ -107,49 +107,66 @@ def upload_foto(usuario_id):
         print("Erro no upload:", e)
         return jsonify({"error": "Falha ao enviar imagem"}), 500
 
+# Adicionar estas rotas no arquivo userController.py (antes da última linha)
+
+# ==============================================
+# ⚙️ CONFIGURAÇÕES DO USUÁRIO
+# ==============================================
+
 @user_bp.route("/auth/update-username", methods=["PUT"])
 @token_required
+@cross_origin()
 def update_username(usuario_id):
+    """Atualiza o username do usuário"""
     data = request.get_json()
-    new_username = data.get("new_username")
-    senha = data.get("senha")
-    if not all([new_username, senha]):
-        return jsonify({"error": "Campos obrigátorios"}), 400
-    return jsonify(worker.update_username(usuario_id, new_username, senha))
+    new_username = data.get("newUsername")
+    password = data.get("password")
+    
+    if not all([new_username, password]):
+        return jsonify({"error": "Campos obrigatórios"}), 400
+    
+    return jsonify(worker.update_username(usuario_id, new_username, password))
+
 
 @user_bp.route("/auth/update-email", methods=["PUT"])
 @token_required
+@cross_origin()
 def update_email(usuario_id):
+    """Atualiza o e-mail do usuário"""
     data = request.get_json()
-    new_email = data.get("new_email")
-    senha = data.get("senha")
+    new_email = data.get("newEmail")
+    password = data.get("password")
     
-    if not all([new_email, senha]):
+    if not all([new_email, password]):
         return jsonify({"error": "Campos obrigatórios"}), 400
     
-    return jsonify(worker.update_email(new_email, usuario_id, senha))
+    return jsonify(worker.update_email(usuario_id, new_email, password))
 
 
 @user_bp.route("/auth/update-password", methods=["PUT"])
 @token_required
+@cross_origin()
 def update_password(usuario_id):
+    """Atualiza a senha do usuário"""
     data = request.get_json()
-    current_senha = data.get("current_senha")
-    new_senha = data.get("new_senha")
+    current_password = data.get("currentPassword")
+    new_password = data.get("newPassword")
     
-    if not all([current_senha, new_senha]):
+    if not all([current_password, new_password]):
         return jsonify({"error": "Campos obrigatórios"}), 400
     
-    return jsonify(worker.update_password(usuario_id, current_senha, new_senha))
+    return jsonify(worker.update_password(usuario_id, current_password, new_password))
 
 
 @user_bp.route("/auth/delete-account", methods=["DELETE"])
 @token_required
+@cross_origin()
 def delete_account(usuario_id):
+    """Exclui a conta do usuário permanentemente"""
     data = request.get_json()
-    senha = data.get("senha")
+    password = data.get("password")
     
-    if not senha:
+    if not password:
         return jsonify({"error": "Senha é obrigatória"}), 400
     
-    return jsonify(worker.delete_account(usuario_id, senha))
+    return jsonify(worker.delete_account(usuario_id, password))
