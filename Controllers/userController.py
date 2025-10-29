@@ -115,7 +115,6 @@ def upload_foto(usuario_id):
 
 @user_bp.route("/auth/update-username", methods=["PUT"])
 @token_required
-@cross_origin()
 def update_username(usuario_id):
     """Atualiza o username do usuário"""
     data = request.get_json()
