@@ -72,7 +72,7 @@ class UserWorker:
             return {"error": "Username deve ter entre 3 e 20 caracteres"}, 400
 
         existing_user = repo.find_by_username(new_username)
-        if existing_user:
+        if existing_user and existing_user["id"] != usuario_id:
             return {"error": "Username já está em uso"}, 400
 
         sucesso = repo.update_username(usuario_id, new_username)
