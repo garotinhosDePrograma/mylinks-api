@@ -77,8 +77,10 @@ class UserRepository:
             conn.commit()
             cursor.close()
             conn.close()
+            return True
         except Error as e:
             logging.error(f"Erro ao tentar atualizar a foto de perfil do usuário: {e}")
+            return None
 
     def find_by_id(self, usuario_id):
         try:
