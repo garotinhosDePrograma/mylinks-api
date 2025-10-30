@@ -102,7 +102,7 @@ def upload_foto(usuario_id):
 
         image_url = upload_result["secure_url"]
 
-        return jsonify(worker.update_foto_perfil(usuario_id, image_url))
+        return worker.update_foto_perfil(usuario_id, image_url)
     except Exception as e:
         print("Erro no upload:", e)
         return jsonify({"error": "Falha ao enviar imagem"}), 500

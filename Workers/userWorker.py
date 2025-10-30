@@ -59,7 +59,7 @@ class UserWorker:
         sucesso = repo.update_foto(usuario_id, image_url)
         if not sucesso:
             return jsonify({"error": "Erro ao alterar foto de perfil"}), 500
-        return {"message": "Foto de perfil atualizada com sucesso", "foto_perfil": image_url}
+        return jsonify({"message": "Foto de perfil atualizada com sucesso", "foto_perfil": image_url})
 
     def update_username(self, usuario_id, new_username, password):
         user = repo.find_by_id(usuario_id)
