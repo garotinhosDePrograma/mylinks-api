@@ -10,9 +10,7 @@ worker = LinkWorker()
 @token_required
 def get_links(usuario_id):
     result = worker.getAll(usuario_id)
-    if isinstance(result, tuple):
-        return jsonify(result[0]), result[1]
-    return jsonify(result), 200
+    return result
 
 @link_bp.route("/links", methods=["POST"])
 @token_required
@@ -75,3 +73,4 @@ def reorder_links(usuario_id):
     if isinstance(result, tuple):
         return jsonify(result[0]), result[1]
     return jsonify(result), 200
+
