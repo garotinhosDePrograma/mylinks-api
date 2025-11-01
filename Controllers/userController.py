@@ -36,7 +36,6 @@ def register():
         return jsonify(result[0]), result[1]
     return jsonify(result), 200
 
-
 @user_bp.route("/auth/login", methods=["POST"])
 @cross_origin()
 def login():
@@ -148,7 +147,6 @@ def update_username(usuario_id):
         return jsonify(result[0]), result[1]
     return jsonify(result), 200
 
-
 @user_bp.route("/auth/update-email", methods=["PUT"])
 @token_required
 def update_email(usuario_id):
@@ -167,7 +165,6 @@ def update_email(usuario_id):
         return jsonify(result[0]), result[1]
     return jsonify(result), 200
 
-
 @user_bp.route("/auth/update-password", methods=["PUT"])
 @token_required
 def update_password(usuario_id):
@@ -185,7 +182,6 @@ def update_password(usuario_id):
     if isinstance(result, tuple):
         return jsonify(result[0]), result[1]
     return jsonify(result), 200
-
 
 @user_bp.route("/auth/delete-account", methods=["DELETE"])
 @token_required
