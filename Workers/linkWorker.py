@@ -5,12 +5,19 @@ repo = LinkRepository()
 
 class LinkWorker:
     def getAll(self, usuario_id):
-        return repo.getAll(usuario_id)
+        links = repo.getAll(usuario_id)
+        if links is None:
+            return jsonify({"error": "Erro ao buscar links"}), 500
+        return links
     
     def create(self, usuario_id, titulo, url):
         links = repo.getAll(usuario_id)
+        if links is None:
+            return jsonify({"error": "Erro ao buscar links existentes"}), 500
+        
         nova_ordem = len(links) + 1
         sucesso = repo.create(usuario_id, titulo, url, nova_ordem)
+        
         if not sucesso:
             return jsonify({"error": "Erro ao adicionar link"}), 500
         return jsonify({"message": "Link adicionado com sucesso"}), 200
@@ -31,4 +38,5 @@ class LinkWorker:
         sucesso = repo.reorder(usuario_id, links)
         if not sucesso:
             return jsonify({"error": "Erro ao tentar reordenar links"}), 500
+
         return jsonify({"message": "Links reordenados com sucesso"}), 200
