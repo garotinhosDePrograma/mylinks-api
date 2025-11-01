@@ -6,6 +6,7 @@ import jwt
 from datetime import datetime, timedelta
 from Workers.userWorker import UserWorker
 from Utils.auth import token_required
+from Utils.cloudinary import configure_cloudinary
 import os
 from dotenv import load_dotenv
 
@@ -14,30 +15,45 @@ load_dotenv()
 user_bp = Blueprint("usuario", __name__)
 worker = UserWorker()
 
-cloudinary.config(
-    cloud_name=os.getenv("CLOUDINARY_CLOUD_NAME"),
-    api_key=os.getenv("CLOUDINARY_API_KEY"),
-    api_secret=os.getenv("CLOUDINARY_API_SECRET")
-)
+configure_cloudinary()
 
 @user_bp.route("/auth/register", methods=["POST"])
 @cross_origin()
 def register():
     data = request.get_json()
+    if not data:
+        return jsonify({"error": "Body inválido"}), 400
+    
     username = data.get("username")
     email = data.get("email")
     senha = data.get("senha")
+    
     if not all([username, email, senha]):
-        return jsonify({"error": "Campos Obrigatórios"}), 400
-    return worker.register(username, email, senha)
+        return jsonify({"error": "Campos obrigatórios"}), 400
+    
+    result = worker.register(username, email, senha)
+    if isinstance(result, tuple):
+        return jsonify(result[0]), result[1]
+    return jsonify(result), 200
+
 
 @user_bp.route("/auth/login", methods=["POST"])
 @cross_origin()
 def login():
     data = request.get_json()
+    if not data:
+        return jsonify({"error": "Body inválido"}), 400
+    
     email = data.get("email")
     senha = data.get("senha")
-    return worker.login(email, senha)
+    
+    if not all([email, senha]):
+        return jsonify({"error": "Campos obrigatórios"}), 400
+    
+    result = worker.login(email, senha)
+    if isinstance(result, tuple):
+        return jsonify(result[0]), result[1]
+    return jsonify(result), 200
 
 @user_bp.route("/auth/refresh", methods=["POST"])
 @cross_origin()
@@ -60,7 +76,7 @@ def refresh_token():
             algorithm="HS256"
         )
 
-        return jsonify({"access_token": new_access_token})
+        return jsonify({"access_token": new_access_token}), 200
 
     except jwt.ExpiredSignatureError:
         return jsonify({"error": "Refresh token expirado"}), 401
@@ -70,7 +86,10 @@ def refresh_token():
 @user_bp.route("/user/<string:username>", methods=["GET"])
 @cross_origin()
 def public_profile(username):
-    return worker.get_public_profile(username)
+    result = worker.get_public_profile(username)
+    if isinstance(result, tuple):
+        return jsonify(result[0]), result[1]
+    return jsonify(result), 200
 
 @user_bp.route("/<string:username>", methods=["GET"])
 def short_url(username):
@@ -101,8 +120,12 @@ def upload_foto(usuario_id):
         )
 
         image_url = upload_result["secure_url"]
-
-        return worker.update_foto_perfil(usuario_id, image_url)
+        result = worker.update_foto_perfil(usuario_id, image_url)
+        
+        if isinstance(result, tuple):
+            return jsonify(result[0]), result[1]
+        return jsonify(result), 200
+        
     except Exception as e:
         print("Erro no upload:", e)
         return jsonify({"error": "Falha ao enviar imagem"}), 500
@@ -111,44 +134,72 @@ def upload_foto(usuario_id):
 @token_required
 def update_username(usuario_id):
     data = request.get_json()
+    if not data:
+        return jsonify({"error": "Body inválido"}), 400
+    
     new_username = data.get("newUsername")
     password = data.get("password")
     
     if not all([new_username, password]):
         return jsonify({"error": "Campos obrigatórios"}), 400
-    return worker.update_username(usuario_id, new_username, password)
+    
+    result = worker.update_username(usuario_id, new_username, password)
+    if isinstance(result, tuple):
+        return jsonify(result[0]), result[1]
+    return jsonify(result), 200
 
 
 @user_bp.route("/auth/update-email", methods=["PUT"])
 @token_required
 def update_email(usuario_id):
     data = request.get_json()
+    if not data:
+        return jsonify({"error": "Body inválido"}), 400
+    
     new_email = data.get("newEmail")
     password = data.get("password")
     
     if not all([new_email, password]):
         return jsonify({"error": "Campos obrigatórios"}), 400
-    return worker.update_email(usuario_id, new_email, password)
+    
+    result = worker.update_email(usuario_id, new_email, password)
+    if isinstance(result, tuple):
+        return jsonify(result[0]), result[1]
+    return jsonify(result), 200
 
 
 @user_bp.route("/auth/update-password", methods=["PUT"])
 @token_required
 def update_password(usuario_id):
     data = request.get_json()
+    if not data:
+        return jsonify({"error": "Body inválido"}), 400
+    
     current_password = data.get("currentPassword")
     new_password = data.get("newPassword")
     
     if not all([current_password, new_password]):
         return jsonify({"error": "Campos obrigatórios"}), 400
-    return worker.update_password(usuario_id, current_password, new_password)
+    
+    result = worker.update_password(usuario_id, current_password, new_password)
+    if isinstance(result, tuple):
+        return jsonify(result[0]), result[1]
+    return jsonify(result), 200
 
 
 @user_bp.route("/auth/delete-account", methods=["DELETE"])
 @token_required
 def delete_account(usuario_id):
     data = request.get_json()
+    if not data:
+        return jsonify({"error": "Body inválido"}), 400
+    
     password = data.get("password")
     
     if not password:
         return jsonify({"error": "Senha é obrigatória"}), 400
-    return worker.delete_account(usuario_id, password)
+    
+    result = worker.delete_account(usuario_id, password)
+    if isinstance(result, tuple):
+        return jsonify(result[0]), result[1]
+    return jsonify(result), 200
