@@ -13,7 +13,11 @@ class LinkRepository:
                 "SELECT id, usuario_id, titulo, url, ordem FROM links WHERE usuario_id = %s ORDER BY ordem ASC",
                 (usuario_id,)
             )
-            links = cursor.fetchall()
+            rows = cursor.fetchall()
+
+            colunas = ["id", "usuario_id", "titulo", "url", "ordem"]
+            links = [dict(zip(colunas, row)) for row in rows]
+            
             cursor.close()
             conn.close()
             return links if links else []
