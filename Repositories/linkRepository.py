@@ -19,7 +19,7 @@ class LinkRepository:
             conn.close()
 
             if links:
-                return [Link(**links) for link in links]
+                return [Link(**link) for link in links]
             return []
         
         except Error as e:
