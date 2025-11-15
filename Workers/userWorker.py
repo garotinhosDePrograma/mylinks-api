@@ -26,7 +26,7 @@ class UserWorker:
     
     def login(self, email, senha):
         user = repo.find_by_email(email)
-        if not user or not bcrypt.checkpw(senha.encode("utf-8"), user["senha"].encode("utf-8")):
+        if not user or not bcrypt.checkpw(senha.encode("utf-8"), user.senha.encode("utf-8")):
             return {"error": "Credenciais inválidas"}, 401
         
         access_token = jwt.encode(
@@ -75,14 +75,14 @@ class UserWorker:
         if not user:
             return {"error": "Usuário não encontrado"}, 404
 
-        if not bcrypt.checkpw(password.encode("utf-8"), user["senha"].encode("utf-8")):
+        if not bcrypt.checkpw(password.encode("utf-8"), user.senha.encode("utf-8")):
             return {"error": "Senha incorreta"}, 401
 
         if len(new_username) < 3 or len(new_username) > 20:
             return {"error": "Username deve ter entre 3 e 20 caracteres"}, 400
 
         existing_user = repo.find_by_username(new_username)
-        if existing_user and existing_user["id"] != usuario_id:
+        if existing_user and existing_user.id != usuario_id:
             return {"error": "Username já está em uso"}, 400
 
         sucesso = repo.update_username(usuario_id, new_username)
@@ -98,11 +98,11 @@ class UserWorker:
         if not user:
             return {"error": "Usuário não encontrado"}, 404
 
-        if not bcrypt.checkpw(password.encode("utf-8"), user["senha"].encode("utf-8")):
+        if not bcrypt.checkpw(password.encode("utf-8"), user.senha.encode("utf-8")):
             return {"error": "Senha incorreta"}, 401
 
         existing_user = repo.find_by_email(new_email)
-        if existing_user and existing_user["id"] != usuario_id:
+        if existing_user and existing_user.id != usuario_id:
             return {"error": "E-mail já está em uso"}, 400
 
         sucesso = repo.update_email(usuario_id, new_email)
@@ -118,7 +118,7 @@ class UserWorker:
         if not user:
             return {"error": "Usuário não encontrado"}, 404
 
-        if not bcrypt.checkpw(current_password.encode("utf-8"), user["senha"].encode("utf-8")):
+        if not bcrypt.checkpw(current_password.encode("utf-8"), user.senha.encode("utf-8")):
             return {"error": "Senha atual incorreta"}, 401
 
         if len(new_password) < 6:
@@ -136,7 +136,7 @@ class UserWorker:
         if not user:
             return {"error": "Usuário não encontrado"}, 404
 
-        if not bcrypt.checkpw(password.encode("utf-8"), user["senha"].encode("utf-8")):
+        if not bcrypt.checkpw(password.encode("utf-8"), user.senha.encode("utf-8")):
             return {"error": "Senha incorreta"}, 401
 
         sucesso = repo.delete_user(usuario_id)
