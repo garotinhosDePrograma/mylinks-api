@@ -6,7 +6,7 @@ class User:
         self.senha = senha
         self.foto_perfil = foto_perfil
     
-    def to_dict(self):
+    def to_dict(self, include_senha=False):
         data = {
             "id": self.id,
             "username": self.username,
