@@ -1,5 +1,6 @@
 from Utils.db_railway import get_db
 from mysql.connector import Error
+from Models.user import User
 import logging
 
 logging.basicConfig(level=logging.ERROR)
@@ -13,10 +14,18 @@ class UserRepository:
                 "INSERT INTO usuarios (username, email, senha) VALUES (%s, %s, %s)",
                 (username, email, senha)
             )
+            user_id = cursor.lastrowid
             conn.commit()
             cursor.close()
             conn.close()
-            return True
+            
+            return User(
+                id=user_id,
+                username=username,
+                email=email,
+                senha=senha
+            )
+            
         except Error as e:
             logging.error(f"Erro ao tentar criar usuário: {e}")
             return False
@@ -32,7 +41,11 @@ class UserRepository:
             user = cursor.fetchone()
             cursor.close()
             conn.close()
-            return user
+            
+            if user:
+                return User(**user)
+            return None
+            
         except Error as e:
             logging.error(f"Erro ao tentar buscar usuário pelo email: {e}")
             return None
@@ -48,7 +61,11 @@ class UserRepository:
             user = cursor.fetchone()
             cursor.close()
             conn.close()
-            return user
+            
+            if user:
+                return User(**user)
+            return None
+            
         except Error as e:
             logging.error(f"Erro ao tentar buscar usuário pelo username: {e}")
             return None
@@ -64,7 +81,11 @@ class UserRepository:
             user = cursor.fetchone()
             cursor.close()
             conn.close()
-            return user
+
+            if user:
+                return User(**user)
+            return None
+            
         except Error as e:
             logging.error(f"Erro ao tentar buscar usuário pelo ID: {e}")
             return None
@@ -93,8 +114,13 @@ class UserRepository:
             cursor.close()
             conn.close()
 
-            user["links"] = links
-            return user
+            return {
+                "id": user["id"],
+                "username": user["username"],
+                "foto_perfil": user["foto_perfil"],
+                "links": links
+            }
+            
         except Error as e:
             logging.error(f"Erro ao tentar buscar o perfil público: {e}")
             return None
@@ -107,10 +133,13 @@ class UserRepository:
                 "UPDATE usuarios SET foto_perfil = %s WHERE id = %s",
                 (image_url, usuario_id)
             )
+            rows_affected = cursor.rowcount
             conn.commit()
             cursor.close()
             conn.close()
-            return True
+            
+            return rows_affected > 0
+            
         except Error as e:
             logging.error(f"Erro ao tentar atualizar a foto de perfil: {e}")
             return False
@@ -123,10 +152,13 @@ class UserRepository:
                 "UPDATE usuarios SET username = %s WHERE id = %s",
                 (new_username, usuario_id)
             )
+            rows_affected = cursor.rowcount
             conn.commit()
             cursor.close()
             conn.close()
-            return True
+            
+            return rows_affected > 0
+            
         except Error as e:
             logging.error(f"Erro ao tentar atualizar username: {e}")
             return False
@@ -139,10 +171,13 @@ class UserRepository:
                 "UPDATE usuarios SET email = %s WHERE id = %s",
                 (new_email, usuario_id)
             )
+            rows_affected = cursor.rowcount
             conn.commit()
             cursor.close()
             conn.close()
-            return True
+            
+            return rows_affected > 0
+            
         except Error as e:
             logging.error(f"Erro ao tentar atualizar e-mail: {e}")
             return False
@@ -155,10 +190,13 @@ class UserRepository:
                 "UPDATE usuarios SET senha = %s WHERE id = %s",
                 (new_password_hash, usuario_id)
             )
+            rows_affected = cursor.rowcount
             conn.commit()
             cursor.close()
             conn.close()
-            return True
+            
+            return rows_affected > 0
+            
         except Error as e:
             logging.error(f"Erro ao tentar atualizar senha: {e}")
             return False
@@ -167,11 +205,17 @@ class UserRepository:
         try:
             conn = get_db()
             cursor = conn.cursor()
-            cursor.execute("DELETE FROM usuarios WHERE id = %s", (usuario_id,))
+            cursor.execute(
+                "DELETE FROM usuarios WHERE id = %s",
+                (usuario_id,)
+            )
+            rows_affected = cursor.usercount
             conn.commit()
             cursor.close()
             conn.close()
-            return True
+            
+            return rows_affected > 0
+            
         except Error as e:
             logging.error(f"Erro ao tentar excluir usuário: {e}")
             return False
