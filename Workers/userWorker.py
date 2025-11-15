@@ -31,7 +31,7 @@ class UserWorker:
         
         access_token = jwt.encode(
             {
-                "id": user["id"],
+                "id": user.id,
                 "exp": datetime.utcnow() + timedelta(hours=1),
                 "type": "access"
             },
@@ -41,7 +41,7 @@ class UserWorker:
 
         refresh_token = jwt.encode(
             {
-                "id": user["id"],
+                "id": user.id,
                 "exp": datetime.utcnow() + timedelta(days=7),
                 "type": "refresh"
             },
