@@ -7,7 +7,8 @@ class LinkWorker:
         links = repo.getAll(usuario_id)
         if links is None:
             return {"error": "Erro ao buscar links"}, 500
-        return links
+        
+        return [link.to_dict() for link in links]
     
     def create(self, usuario_id, titulo, url):
         links = repo.getAll(usuario_id)
@@ -15,9 +16,9 @@ class LinkWorker:
             return {"error": "Erro ao buscar links existentes"}, 500
         
         nova_ordem = len(links) + 1
-        sucesso = repo.create(usuario_id, titulo, url, nova_ordem)
+        link = repo.create(usuario_id, titulo, url, nova_ordem)
         
-        if not sucesso:
+        if not link:
             return {"error": "Erro ao adicionar link"}, 500
         return {"message": "Link adicionado com sucesso"}
     
@@ -36,8 +37,21 @@ class LinkWorker:
         return {"message": "Link removido com sucesso"}
 
     def reorder(self, usuario_id, links):
+        if not links or not isinstance(links, list):
+            return {"error": "Lista de links inválida"}, 400
+
+        for link in links:
+            if not isinstance(link, dict) or "id" not in link or "ordem" not in link:
+                return {"error": "Formato de link inválido"}, 400
+        
         sucesso = repo.reorder(usuario_id, links)
         
         if not sucesso:
             return {"error": "Erro ao reordenar links"}, 500
         return {"message": "Links reordenados com sucesso"}
+
+    def get_by_id(self, link_id, usuario_id):
+        link = repo.get_by_id(link_id, usuario_id)
+        if not link:
+            return {"error": "Link não encontrado"}, 400
+        return link.to_dict()
