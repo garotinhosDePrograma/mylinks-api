@@ -18,9 +18,9 @@ class UserWorker:
             return {"error": "E-mail já existente"}, 400
         
         hashed = bcrypt.hashpw(senha.encode("utf-8"), bcrypt.gensalt())
-        sucesso = repo.create(username, email, hashed.decode("utf-8"))
+        user = repo.create(username, email, hashed.decode("utf-8"))
         
-        if not sucesso:
+        if not user:
             return {"error": "Erro ao criar usuário"}, 500
         return {"message": "Usuário criado com sucesso!"}
     
@@ -30,13 +30,21 @@ class UserWorker:
             return {"error": "Credenciais inválidas"}, 401
         
         access_token = jwt.encode(
-            {"id": user["id"], "exp": datetime.utcnow() + timedelta(hours=1), "type": "access"},
+            {
+                "id": user["id"],
+                "exp": datetime.utcnow() + timedelta(hours=1),
+                "type": "access"
+            },
             SECRET_KEY,
             algorithm="HS256"
         )
 
         refresh_token = jwt.encode(
-            {"id": user["id"], "exp": datetime.utcnow() + timedelta(days=7), "type": "refresh"},
+            {
+                "id": user["id"],
+                "exp": datetime.utcnow() + timedelta(days=7),
+                "type": "refresh"
+            },
             SECRET_KEY,
             algorithm="HS256"
         )
@@ -44,11 +52,7 @@ class UserWorker:
         return {
             "access_token": access_token,
             "refresh_token": refresh_token,
-            "user": {
-                "id": user["id"],
-                "username": user["username"],
-                "email": user["email"]
-            }
+            "user": user.to_dict()
         }
 
     def get_public_profile(self, username):
@@ -61,7 +65,10 @@ class UserWorker:
         sucesso = repo.update_foto(usuario_id, image_url)
         if not sucesso:
             return {"error": "Erro ao alterar foto de perfil"}, 500
-        return {"message": "Foto de perfil atualizada com sucesso", "foto_perfil": image_url}
+        return {
+            "message": "Foto de perfil atualizada com sucesso",
+            "foto_perfil": image_url
+        }
 
     def update_username(self, usuario_id, new_username, password):
         user = repo.find_by_id(usuario_id)
@@ -81,7 +88,10 @@ class UserWorker:
         sucesso = repo.update_username(usuario_id, new_username)
         if not sucesso:
             return {"error": "Erro ao atualizar username"}, 500
-        return {"message": "Username atualizado com sucesso", "username": new_username}
+        return {
+            "message": "Username atualizado com sucesso",
+            "username": new_username
+        }
 
     def update_email(self, usuario_id, new_email, password):
         user = repo.find_by_id(usuario_id)
@@ -98,7 +108,10 @@ class UserWorker:
         sucesso = repo.update_email(usuario_id, new_email)
         if not sucesso:
             return {"error": "Erro ao atualizar e-mail"}, 500
-        return {"message": "E-mail atualizado com sucesso", "email": new_email}
+        return {
+            "message": "E-mail atualizado com sucesso",
+            "email": new_email
+        }
 
     def update_password(self, usuario_id, current_password, new_password):
         user = repo.find_by_id(usuario_id)
