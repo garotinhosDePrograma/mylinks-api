@@ -209,7 +209,7 @@ class UserRepository:
                 "DELETE FROM usuarios WHERE id = %s",
                 (usuario_id,)
             )
-            rows_affected = cursor.usercount
+            rows_affected = cursor.rowcount
             conn.commit()
             cursor.close()
             conn.close()
