@@ -65,7 +65,7 @@ class LinkRepository:
 
             if link:
                 return Link(**link)
-            return []
+            return None
         
         except Error as e:
             logging.error(f"Erro ao tentar buscar link por ID: {e}")
