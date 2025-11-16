@@ -51,7 +51,7 @@ class LinkWorker:
         return {"message": "Links reordenados com sucesso"}
 
     def get_by_id(self, link_id, usuario_id):
-        link = repo.get_by_id(link_id, usuario_id)
+        link = repo.find_by_id(link_id, usuario_id)
         if not link:
             return {"error": "Link não encontrado"}, 400
         return link.to_dict()
