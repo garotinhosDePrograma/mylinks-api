@@ -813,7 +813,7 @@ Este é um projeto acadêmico, mas contribuições são bem-vindas!
 
 ## 👨‍💻 Desenvolvedores
 
-**[Luiz, Thalis, Diego, Renan e João]**
+**[Luiz, Thalis, Diego, Renan e João]**  
 
 ---
 
