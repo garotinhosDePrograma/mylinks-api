@@ -813,8 +813,7 @@ Este é um projeto acadêmico, mas contribuições são bem-vindas!
 
 ## 👨‍💻 Desenvolvedores
 
-**[Luiz, Thalis, Diego, Renan e João]**  
-
+**[Luiz, Thalis, Diego, Renan e João]**
 ---
 
 **"Um Projeto para a todos integrar, Um Projeto para conectar, Um Projeto para a tudo coroar e com a lógica concretizar."** 🔥
