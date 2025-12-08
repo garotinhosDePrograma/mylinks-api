@@ -75,5 +75,3 @@ def reorder_links(usuario_id):
     if isinstance(result, tuple):
         return jsonify(result[0]), result[1]
     return jsonify(result), 200
-
-
