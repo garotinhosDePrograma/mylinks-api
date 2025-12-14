@@ -1,18 +1,11 @@
 from flask import Blueprint, request, jsonify
-from flask_limiter import Limiter
-from flask_limiter.util import get_remote_address
+from extensions import limiter
 from Workers.linkWorker import LinkWorker
 from Utils.auth import token_required
 from Utils.valid_url import is_valid_url
 
 link_bp = Blueprint("links", __name__)
 worker = LinkWorker()
-
-limiter = Limiter(
-    app=app,
-    key_func=get_remote_address,
-    default_limits=["200 per day", "50 per hour"]
-)
 
 @link_bp.route("/links", methods=["GET"])
 @token_required
@@ -88,3 +81,4 @@ def reorder_links(usuario_id):
         return jsonify(result[0]), result[1]
 
     return jsonify(result), 200
+
