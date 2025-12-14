@@ -1,7 +1,6 @@
 from flask import Blueprint, request, jsonify, redirect
 from flask_cors import cross_origin
-from flask_limiter import Limiter
-from flask_limiter.util import get_remote_address
+from extensions import limiter
 import cloudinary
 import cloudinary.uploader
 import jwt
@@ -16,12 +15,6 @@ load_dotenv()
 
 user_bp = Blueprint("usuario", __name__)
 worker = UserWorker()
-
-limiter = Limiter(
-    app=app,
-    key_func=get_remote_address,
-    default_limites=["200 per day", "50 per hour"]
-)
 
 configure_cloudinary()
 
