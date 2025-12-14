@@ -121,11 +121,19 @@ def upload_foto(usuario_id):
         return jsonify({"error": "Formato não permitido"}), 400
 
     try:
+        if len(file.read()) > 15 * 1024 * 1024:
+            return jsonify({"error": "Arquivo muito grande (MAX. 15MB)"}), 400
+        file.seek(0)
+        
         upload_result = cloudinary.uploader.upload(
             file,
             folder="mylinks_profiles",
             public_id=f"user_{usuario_id}",
             overwrite=True,
+            transformation=[
+                {'width': 400, 'height': 400, 'crop': 'fill'},
+                {'quality': 'auto'}
+            ],
             resource_type="image"
         )
 
