@@ -1,5 +1,14 @@
 import re
+from urllib.parse import urlparse
 
 def is_valid_url(url):
-    pattern = re.compile(r'^https?://')
-    return bool(pattern.match(url))
+    try:
+        result = urlparse(url)
+
+        return all([
+            result.scheme in ['http', 'https'],
+            result.netloc,
+            '.' in result.netloc
+        ])
+    except:
+        return False
