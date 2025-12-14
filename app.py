@@ -1,5 +1,6 @@
 from flask import Flask
 from flask_cors import CORS
+from extensions import limiter
 from Controllers.userController import user_bp
 from Controllers.linkController import link_bp
 import logging
@@ -15,6 +16,8 @@ CORS(app, resources={
         "allow_headers": ["Content-Type", "Authorization"]
     }
 })
+
+limiter.init_app(app)
 
 logging.basicConfig(
     level=logging.ERROR,
