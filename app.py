@@ -39,14 +39,14 @@ def ratelimit_handler(e):
     }), 429
 
 
-@app.route("/health")
+@app.route("/health", methods=["GET"])
 def health_check():
     return jsonify({
         "status": "ok",
         "service": "mylinks-api"
     }), 200
 
-@app.route("/")
+@app.route("/", methods=["GET"])
 def root():
     return jsonify({
         "message": "MyLinks API",
