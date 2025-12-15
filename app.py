@@ -19,7 +19,7 @@ CORS(app, resources={
 
 limiter.init_app(app)
 
-@app.errorHandler(429)
+@app.errorhandler(429)
 def ratelimit_handler(e):
     return jsonify({
         "error": "Muitas requisições. Tente novamente mais tarde.",
