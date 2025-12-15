@@ -19,15 +19,7 @@ CORS(app, resources={
 
 limiter.init_app(app)
 
-@app.errorhandler(429)
-def ratelimit_handler(e):
-    return jsonify({
-        "error": "Muitas requisições. Tente novamente mais tarde.",
-        "message": str(e.description)
-    }), 429
-
 logging.getLogger('flask_limiter').setLevel(logging.INFO)
-
 logging.basicConfig(
     level=logging.ERROR,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -39,3 +31,10 @@ logging.basicConfig(
 
 app.register_blueprint(user_bp)
 app.register_blueprint(link_bp)
+
+@app.errorhandler(429)
+def ratelimit_handler(e):
+    return jsonify({
+        "error": "Muitas requisições. Tente novamente mais tarde.",
+        "message": str(e.description)
+    }), 429
