@@ -19,7 +19,6 @@ CORS(app, resources={
 
 limiter.init_app(app)
 
-logging.getLogger('flask_limiter').setLevel(logging.INFO)
 logging.basicConfig(
     level=logging.ERROR,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -38,3 +37,17 @@ def ratelimit_handler(e):
         "error": "Muitas requisições. Tente novamente mais tarde.",
         "message": str(e.description)
     }), 429
+
+
+@app.route("/health")
+def health_check():
+    return jsonify({
+        "status": "ok", "service": "mylinks-api"
+    }), 200
+
+@app.route("/")
+def root():
+    return jsonify({
+        "message": "MyLinks API",
+        "version": "1.0.0"
+    }), 200
