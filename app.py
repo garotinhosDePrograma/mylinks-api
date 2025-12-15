@@ -26,6 +26,8 @@ def ratelimit_handler(e):
         "message": str(e.description)
     }), 429
 
+logging.getLogger('flask_limiter').setLevel(logging.INFO)
+
 logging.basicConfig(
     level=logging.ERROR,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
