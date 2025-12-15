@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, jsonify
 from flask_cors import CORS
 from extensions import limiter
 from Controllers.userController import user_bp
@@ -18,6 +18,13 @@ CORS(app, resources={
 })
 
 limiter.init_app(app)
+
+@app.errorHandler(429)
+def ratelimit_handler(e):
+    return jsonify({
+        "error": "Muitas requisições. Tente novamente mais tarde.",
+        "message": str(e.description)
+    }), 429
 
 logging.basicConfig(
     level=logging.ERROR,
