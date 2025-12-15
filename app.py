@@ -42,7 +42,8 @@ def ratelimit_handler(e):
 @app.route("/health")
 def health_check():
     return jsonify({
-        "status": "ok", "service": "mylinks-api"
+        "status": "ok",
+        "service": "mylinks-api"
     }), 200
 
 @app.route("/")
