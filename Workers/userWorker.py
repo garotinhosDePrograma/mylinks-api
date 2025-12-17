@@ -5,6 +5,7 @@ from dotenv import load_dotenv
 from datetime import datetime, timedelta
 from Repositories.userRepository import UserRepository
 from Utils.valid_email import is_valid_email
+from Utils.valid_username import is_valid_username, get_username_error
 
 load_dotenv()
 
@@ -14,11 +15,14 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 class UserWorker:
     def register(self, username, email, senha):
         if not is_valid_email(email):
-            return {"error": "E-Mail inválido"}, 401
+            return {"error": "E-Mail inválido"}, 400
+        if not is_valid_username(username):
+            return {"error": get_username_error(username)}, 400
+        
         if repo.find_by_username(username):
-            return {"error": "Username já existente"}, 400
+            return {"error": "Username já existente"}, 401
         if repo.find_by_email(email):
-            return {"error": "E-Mail já existente"}, 400
+            return {"error": "E-Mail já existente"}, 401
         
         hashed = bcrypt.hashpw(senha.encode("utf-8"), bcrypt.gensalt())
         user = repo.create(username, email, hashed.decode("utf-8"))
