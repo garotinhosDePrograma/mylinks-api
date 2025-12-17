@@ -12,7 +12,7 @@ CORS(app, resources={
             "https://mylinks-352x.onrender.com",
             "http://localhost:8080"
         ],
-        "methods": ["GET", "POST" "PUT" "DELETE"],
+        "methods": ["GET", "POST", "PUT", "DELETE"],
         "allow_headers": ["Content-Type", "Authorization"]
     }
 })
