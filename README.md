@@ -2,7 +2,8 @@
 
 API RESTful desenvolvida em Python com Flask para o projeto **MyLinks**, um agregador de links pessoal (estilo Linktree/Instabio).
 
-🔗 **Deploy**: [pygre.onrender.com](https://pygre.onrender.com)
+🔗 **Deploy**: [pygre.onrender.com](https://pygre.onrender.com)  
+📚 **Documentação Interativa**: [pygre.onrender.com/docs](https://pygre.onrender.com/docs)
 
 ---
 
@@ -11,6 +12,7 @@ API RESTful desenvolvida em Python com Flask para o projeto **MyLinks**, um agre
 - **Python 3.10+**
 - **Flask** - Framework web
 - **Flask-CORS** - Permitir requisições cross-origin
+- **Flask-Swagger-UI** - Documentação interativa da API
 - **MySQL** - Banco de dados relacional
 - **mysql-connector-python** - Driver MySQL
 - **bcrypt** - Criptografia de senhas
@@ -21,12 +23,37 @@ API RESTful desenvolvida em Python com Flask para o projeto **MyLinks**, um agre
 
 ---
 
+## 📚 Documentação da API
+
+A API está documentada seguindo o padrão **OpenAPI 3.0** (Swagger).
+
+### 🌐 Acesse a Documentação Interativa:
+- **Produção**: [https://pygre.onrender.com/docs](https://pygre.onrender.com/docs)
+- **Local**: [http://localhost:5000/docs](http://localhost:5000/docs)
+
+Na documentação interativa você pode:
+- ✅ Visualizar todos os endpoints disponíveis
+- ✅ Ver exemplos de requisições e respostas
+- ✅ Testar os endpoints diretamente no navegador
+- ✅ Gerar código cliente automaticamente
+- ✅ Explorar os schemas de dados
+
+### 📄 Arquivo de Especificação:
+O arquivo `openapi.yaml` está na raiz do projeto e pode ser usado com:
+- [Swagger Editor](https://editor.swagger.io) - Editor online
+- [Postman](https://www.postman.com) - Importar collection
+- [Insomnia](https://insomnia.rest) - Importar workspace
+- Geradores de código cliente (openapi-generator)
+
+---
+
 ## 📂 Estrutura do Projeto
 
 ```
 mylinks-api/
 │
 ├── app.py                       # Ponto de entrada principal da API
+├── openapi.yaml                 # Especificação OpenAPI 3.0
 │
 ├── Controllers/                 # Rotas e endpoints HTTP
 │   ├── userController.py        # Endpoints de usuário e autenticação
@@ -50,6 +77,8 @@ mylinks-api/
 │   ├── auth.py                  # Decorator @token_required
 │   ├── cloudinary.py            # Configuração Cloudinary
 │   ├── valid_url.py             # Validação de URLs
+│   ├── valid_email.py           # Validação de e-mails
+│   ├── valid_username.py        # Validação de usernames
 │   └── __init__.py
 │
 ├── .env                         # Variáveis de ambiente (não commitado)
@@ -161,336 +190,54 @@ bcrypt.checkpw(senha.encode("utf-8"), user["senha"].encode("utf-8"))
 - **Produção**: `https://pygre.onrender.com`
 - **Local**: `http://localhost:5000`
 
----
-
-### **🔐 Autenticação**
-
-#### `POST /auth/register`
-Cria um novo usuário.
-
-**Body:**
-```json
-{
-  "username": "joao",
-  "email": "joao@email.com",
-  "senha": "senha123"
-}
-```
-
-**Resposta:**
-```json
-{
-  "message": "Usuário criado com sucesso!"
-}
-```
+### **📚 Documentação Completa**
+Para a documentação completa e interativa de todos os endpoints, acesse:
+- **[/docs](https://pygre.onrender.com/docs)** - Interface Swagger UI
+- **[/openapi.yaml](https://pygre.onrender.com/openapi.yaml)** - Especificação OpenAPI
 
 ---
 
-#### `POST /auth/login`
-Autentica o usuário e retorna tokens JWT.
+### **Resumo dos Endpoints Principais**
 
-**Body:**
-```json
-{
-  "email": "joao@email.com",
-  "senha": "senha123"
-}
-```
+#### **🔐 Autenticação**
+| Método | Endpoint | Descrição | Auth |
+|--------|----------|-----------|------|
+| POST | `/auth/register` | Criar nova conta | 👤 |
+| POST | `/auth/login` | Login e obter tokens | 👤 |
+| POST | `/auth/refresh` | Renovar access token | 🔄 Refresh Token |
 
-**Resposta:**
-```json
-{
-  "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-  "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-  "user": {
-    "id": 1,
-    "username": "joao",
-    "email": "joao@email.com"
-  }
-}
-```
+#### **👤 Usuário**
+| Método | Endpoint | Descrição | Auth |
+|--------|----------|-----------|------|
+| GET | `/user/{username}` | Perfil público | 👤 |
+| GET | `/{username}` | Redirecionar para frontend | 👤 |
+| POST | `/auth/upload` | Upload foto de perfil | ✅ |
+| PUT | `/auth/update-username` | Atualizar username | ✅ |
+| PUT | `/auth/update-email` | Atualizar e-mail | ✅ |
+| PUT | `/auth/update-password` | Atualizar senha | ✅ |
+| DELETE | `/auth/delete-account` | Excluir conta | ✅ |
 
----
+#### **🔗 Links**
+| Método | Endpoint | Descrição | Auth |
+|--------|----------|-----------|------|
+| GET | `/links` | Listar links do usuário | ✅ |
+| POST | `/links` | Criar novo link | ✅ |
+| PUT | `/links/{id}` | Atualizar link | ✅ |
+| DELETE | `/links/{id}` | Excluir link | ✅ |
+| PUT | `/links/reorder` | Reordenar links | ✅ |
 
-#### `POST /auth/refresh`
-Renova o access token usando o refresh token.
+#### **⚙️ Sistema**
+| Método | Endpoint | Descrição | Auth |
+|--------|----------|-----------|------|
+| GET | `/health` | Health check | 👤 |
+| GET | `/` | Informações da API | 👤 |
+| GET | `/docs` | Documentação Swagger UI | 👤 |
+| GET | `/openapi.yaml` | Especificação OpenAPI | 👤 |
 
-**Headers:**
-```
-Authorization: Bearer <refresh_token>
-```
-
-**Resposta:**
-```json
-{
-  "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-}
-```
-
----
-
-#### `POST /auth/upload` 🔒
-Faz upload da foto de perfil (requer autenticação).
-
-**Headers:**
-```
-Authorization: Bearer <access_token>
-Content-Type: multipart/form-data
-```
-
-**Body (Form-Data):**
-```
-file: <imagem.png>
-```
-
-**Resposta:**
-```json
-{
-  "message": "Foto de perfil atualizada com sucesso",
-  "foto_perfil": "https://res.cloudinary.com/.../user_1.png"
-}
-```
-
----
-
-#### `PUT /auth/update-username` 🔒
-Altera o username do usuário (requer autenticação).
-
-**Body:**
-```json
-{
-  "newUsername": "joao_silva",
-  "password": "senha123"
-}
-```
-
-**Resposta:**
-```json
-{
-  "message": "Username atualizado com sucesso",
-  "username": "joao_silva"
-}
-```
-
----
-
-#### `PUT /auth/update-email` 🔒
-Altera o e-mail do usuário (requer autenticação).
-
-**Body:**
-```json
-{
-  "newEmail": "joao.silva@email.com",
-  "password": "senha123"
-}
-```
-
-**Resposta:**
-```json
-{
-  "message": "E-mail atualizado com sucesso",
-  "email": "joao.silva@email.com"
-}
-```
-
----
-
-#### `PUT /auth/update-password` 🔒
-Altera a senha do usuário (requer autenticação).
-
-**Body:**
-```json
-{
-  "currentPassword": "senha123",
-  "newPassword": "novaSenha456"
-}
-```
-
-**Resposta:**
-```json
-{
-  "message": "Senha atualizada com sucesso"
-}
-```
-
----
-
-#### `DELETE /auth/delete-account` 🔒
-Exclui permanentemente a conta do usuário (requer autenticação).
-
-**Body:**
-```json
-{
-  "password": "senha123"
-}
-```
-
-**Resposta:**
-```json
-{
-  "message": "Conta excluída com sucesso"
-}
-```
-
----
-
-### **👤 Usuário**
-
-#### `GET /user/<username>`
-Retorna o perfil público de um usuário (incluindo links).
-
-**Exemplo:**
-```
-GET /user/joao
-```
-
-**Resposta:**
-```json
-{
-  "id": 1,
-  "username": "joao",
-  "foto_perfil": "https://res.cloudinary.com/.../user_1.png",
-  "links": [
-    {
-      "id": 1,
-      "titulo": "Meu GitHub",
-      "url": "https://github.com/joao",
-      "ordem": 1
-    },
-    {
-      "id": 2,
-      "titulo": "LinkedIn",
-      "url": "https://linkedin.com/in/joao",
-      "ordem": 2
-    }
-  ]
-}
-```
-
----
-
-#### `GET /<username>`
-Redireciona para a página de perfil no frontend.
-
-**Exemplo:**
-```
-GET /joao → Redireciona para: https://mylinks-352x.onrender.com/profile.html?user=joao
-```
-
----
-
-### **🔗 Links**
-
-#### `GET /links` 🔒
-Retorna todos os links do usuário autenticado.
-
-**Headers:**
-```
-Authorization: Bearer <access_token>
-```
-
-**Resposta:**
-```json
-[
-  {
-    "id": 1,
-    "usuario_id": 1,
-    "titulo": "GitHub",
-    "url": "https://github.com/joao",
-    "ordem": 1
-  },
-  {
-    "id": 2,
-    "usuario_id": 1,
-    "titulo": "LinkedIn",
-    "url": "https://linkedin.com/in/joao",
-    "ordem": 2
-  }
-]
-```
-
----
-
-#### `POST /links` 🔒
-Cria um novo link (requer autenticação).
-
-**Body:**
-```json
-{
-  "titulo": "Meu Portfólio",
-  "url": "https://meusite.com"
-}
-```
-
-**Resposta:**
-```json
-{
-  "message": "Link adicionado com sucesso"
-}
-```
-
----
-
-#### `PUT /links/<id>` 🔒
-Atualiza um link existente (requer autenticação).
-
-**Exemplo:**
-```
-PUT /links/1
-```
-
-**Body:**
-```json
-{
-  "titulo": "GitHub Atualizado",
-  "url": "https://github.com/joao-silva"
-}
-```
-
-**Resposta:**
-```json
-{
-  "message": "Link atualizado com sucesso"
-}
-```
-
----
-
-#### `DELETE /links/<id>` 🔒
-Exclui um link (requer autenticação).
-
-**Exemplo:**
-```
-DELETE /links/1
-```
-
-**Resposta:**
-```json
-{
-  "message": "Link removido com sucesso"
-}
-```
-
----
-
-#### `PUT /links/reorder` 🔒
-Reordena os links do usuário (requer autenticação).
-
-**Body:**
-```json
-[
-  { "id": 2, "ordem": 1 },
-  { "id": 1, "ordem": 2 },
-  { "id": 3, "ordem": 3 }
-]
-```
-
-**Resposta:**
-```json
-{
-  "message": "Links reordenados com sucesso"
-}
-```
+**Legenda:**
+- ✅ Requer autenticação (Bearer Token)
+- 🔄 Requer Refresh Token
+- 👤 Acesso público
 
 ---
 
@@ -600,7 +347,11 @@ gunicorn app:app
 
 ### **8. Teste a API**
 ```bash
-curl http://localhost:5000/user/joao
+# Health check
+curl http://localhost:5000/health
+
+# Documentação interativa
+# Abra no navegador: http://localhost:5000/docs
 ```
 
 ---
@@ -634,6 +385,16 @@ Cada push no GitHub fará deploy automaticamente.
 
 ## 🧪 Testando os Endpoints
 
+### **Usando Swagger UI (Recomendado)**
+1. Acesse [http://localhost:5000/docs](http://localhost:5000/docs)
+2. Explore os endpoints disponíveis
+3. Clique em "Try it out" para testar
+4. Para endpoints autenticados:
+   - Faça login em `/auth/login`
+   - Copie o `access_token`
+   - Clique em "Authorize" 🔒 no topo
+   - Cole o token e confirme
+
 ### **Usando cURL**
 
 ```bash
@@ -653,9 +414,11 @@ curl -X GET http://localhost:5000/links \
 ```
 
 ### **Usando Postman/Insomnia**
-1. Importe a collection (crie uma nova)
+1. Importe a especificação OpenAPI:
+   - Postman: File → Import → Link → `https://pygre.onrender.com/openapi.yaml`
+   - Insomnia: Create → Import from URL → `https://pygre.onrender.com/openapi.yaml`
 2. Configure a variável `{{base_url}}` = `http://localhost:5000`
-3. Teste os endpoints conforme documentado acima
+3. Teste os endpoints
 
 ---
 
@@ -667,6 +430,7 @@ curl -X GET http://localhost:5000/links \
 | `400` | Bad Request | Dados inválidos ou campos faltando |
 | `401` | Unauthorized | Token inválido ou expirado |
 | `404` | Not Found | Recurso não encontrado |
+| `429` | Too Many Requests | Rate limit excedido |
 | `500` | Internal Server Error | Erro no servidor |
 
 ---
@@ -694,6 +458,12 @@ Todas as respostas de erro seguem o padrão:
 
 // URL inválida
 { "error": "URL inválida" }
+
+// Rate limit
+{
+  "error": "Muitas requisições. Tente novamente mais tarde.",
+  "message": "5 per 1 minute"
+}
 ```
 
 ---
@@ -705,14 +475,16 @@ Todas as respostas de erro seguem o padrão:
 - ✅ Tokens JWT com expiração
 - ✅ Refresh token para renovação
 - ✅ Validação de URLs
+- ✅ Validação de e-mails
+- ✅ Validação de usernames
 - ✅ Proteção contra SQL Injection (uso de prepared statements)
 - ✅ CORS configurado
+- ✅ Rate limiting (200/dia, 50/hora, 5/min em endpoints sensíveis)
 - ✅ Validação de tipos de arquivo (upload)
 - ✅ Limite de tamanho de imagem (15MB)
 
 ### **Recomendado para Produção:**
-- ⚠️ Rate limiting (limitar requisições por IP)
-- ⚠️ HTTPS obrigatório
+- ⚠️ HTTPS obrigatório (já implementado no Render)
 - ⚠️ Logging detalhado
 - ⚠️ Monitoramento de erros (Sentry)
 - ⚠️ Backup automatizado do banco
@@ -723,14 +495,16 @@ Todas as respostas de erro seguem o padrão:
 
 ### **Principais (requirements.txt)**
 ```txt
-gunicorn              # Servidor WSGI
-flask                 # Framework web
-flask-cors            # CORS
-mysql-connector-python  # Driver MySQL
-bcrypt                # Criptografia
-pyjwt                 # JWT
-python-dotenv         # Variáveis de ambiente
-cloudinary==1.41.0    # Upload de imagens
+gunicorn                  # Servidor WSGI
+flask                     # Framework web
+flask-cors                # CORS
+flask-swagger-ui          # Documentação Swagger UI
+flask_limiter             # Rate limiting
+mysql-connector-python    # Driver MySQL
+bcrypt                    # Criptografia
+pyjwt                     # JWT
+python-dotenv             # Variáveis de ambiente
+cloudinary==1.41.0        # Upload de imagens
 ```
 
 ### **Instalação**
@@ -743,11 +517,12 @@ pip install -r requirements.txt
 ## 📈 Performance
 
 ### **Otimizações Implementadas:**
-- ✅ Conexões MySQL reutilizadas
+- ✅ Conexões MySQL reutilizadas (connection pooling)
 - ✅ Queries otimizadas (SELECT apenas campos necessários)
 - ✅ Índices no banco (username, email)
 - ✅ Cloudinary CDN para imagens
 - ✅ Logging de erros apenas (não de debug em produção)
+- ✅ Rate limiting para prevenir abuso
 
 ### **Métricas Esperadas:**
 - Tempo de resposta: < 200ms (média)
@@ -778,6 +553,11 @@ DB_PASSWORD=sua_senha_correta
 - Verifique se `CORS(app)` está configurado em `app.py`
 - Adicione o domínio do frontend na configuração CORS se necessário
 
+### **Documentação não aparece em /docs**
+- Verifique se `flask-swagger-ui` está instalado
+- Verifique se o arquivo `openapi.yaml` está na raiz
+- Reinicie o servidor
+
 ---
 
 ## 🔗 Links Relacionados
@@ -785,6 +565,7 @@ DB_PASSWORD=sua_senha_correta
 - **Frontend**: [mylinks-frontend](https://github.com/seu-usuario/mylinks-frontend)
 - **Banco de Dados**: [mylinks-db](https://github.com/seu-usuario/mylinks-db)
 - **Deploy API**: [pygre.onrender.com](https://pygre.onrender.com)
+- **Documentação API**: [pygre.onrender.com/docs](https://pygre.onrender.com/docs)
 - **Deploy Frontend**: [mylinks-352x.onrender.com](https://mylinks-352x.onrender.com)
 
 ---
@@ -814,6 +595,7 @@ Este é um projeto acadêmico, mas contribuições são bem-vindas!
 ## 👨‍💻 Desenvolvedores
 
 **[Luiz, Thalis, Diego, Renan e João]**
+
 ---
 
 **"Um Projeto para a todos integrar, Um Projeto para conectar, Um Projeto para a tudo coroar e com a lógica concretizar."** 🔥
