@@ -7,7 +7,7 @@ def is_valid_username(username):
     if len(username) < 3 or len(username) > 20:
         return False
     
-    pattern = r'^[a-zA-z0-9][a-zA-z0-9_-]*[a-zA-z0-9]$|^[a-zA-z0-9]$'
+    pattern = r'^[a-zA-Z0-9][a-zA-Z0-9_-]*[a-zA-Z0-9]$|^[a-zA-Z0-9]$'
     
     if not re.match(pattern, username):
         return False
@@ -28,7 +28,7 @@ def get_username_error(username):
     if not username:
         return "Username é obrigatório"
     if len(username) < 3:
-        return "Username deve ter no minimo 4 caracínimo"
+        return "Username deve ter no minimo 4 caracteres"
     if len(username) > 20:
         return "Username deve ter no máximo 20 caracteres"
     if not re.match(r'^[a-zA-z0-9_-]+$', username):
