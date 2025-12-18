@@ -1,5 +1,6 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify, send_file
 from flask_cors import CORS
+from flask_swagger_ui import get_swaggerui_blueprint
 from extensions import limiter
 from Controllers.userController import user_bp
 from Controllers.linkController import link_bp
@@ -16,6 +17,14 @@ CORS(app, resources={
         "allow_headers": ["Content-Type", "Authorization"]
     }
 })
+SWAGGER_URL = "/docs"
+API_URL = "/openapi.yaml"
+
+swaggerui_bp = get_swaggerui_blueprint(
+    SWAGGER_URL,
+    API_URL,
+    config={"app_name": "MyLinks API"}
+)
 
 limiter.init_app(app)
 
@@ -30,6 +39,7 @@ logging.basicConfig(
 
 app.register_blueprint(user_bp)
 app.register_blueprint(link_bp)
+app.register_blueprint(swaggerui_bp)
 
 @app.errorhandler(429)
 def ratelimit_handler(e):
@@ -38,6 +48,9 @@ def ratelimit_handler(e):
         "message": str(e.description)
     }), 429
 
+@app.route("/openapi.yaml")
+def get_openapi_spec():
+    return send_file('openapi.yaml')
 
 @app.route("/health", methods=["GET"])
 def health_check():
