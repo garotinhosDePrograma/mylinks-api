@@ -1,0 +1,934 @@
+openapi: 3.0.3
+info:
+  title: MyLinks API
+  description: |
+    API RESTful para gerenciamento de links pessoais (estilo Linktree/Instabio).
+    
+    ## Autenticação
+    A API utiliza tokens JWT (JSON Web Tokens) para autenticação:
+    - **Access Token**: Válido por 1 hora
+    - **Refresh Token**: Válido por 7 dias
+    
+    Para rotas protegidas, inclua o header:
+    ```
+    Authorization: Bearer <access_token>
+    ```
+    
+    ## Rate Limiting
+    - 200 requisições por dia
+    - 50 requisições por hora
+    - Endpoints específicos têm limites adicionais (5 por minuto)
+    
+  version: 1.0.0
+  contact:
+    name: Equipe MyLinks
+    url: https://pygre.onrender.com
+  license:
+    name: Projeto Acadêmico - SENAI Cabo
+    
+servers:
+  - url: https://pygre.onrender.com
+    description: Servidor de Produção
+  - url: http://localhost:5000
+    description: Servidor Local (Desenvolvimento)
+
+tags:
+  - name: Autenticação
+    description: Endpoints de registro, login e gerenciamento de tokens
+  - name: Usuário
+    description: Operações relacionadas ao perfil do usuário
+  - name: Links
+    description: Gerenciamento de links do usuário
+
+paths:
+  /health:
+    get:
+      tags:
+        - Sistema
+      summary: Health Check
+      description: Verifica se a API está online e funcionando
+      responses:
+        '200':
+          description: API funcionando corretamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ok
+                  service:
+                    type: string
+                    example: mylinks-api
+
+  /:
+    get:
+      tags:
+        - Sistema
+      summary: Informações da API
+      description: Retorna informações básicas sobre a API
+      responses:
+        '200':
+          description: Informações da API
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: MyLinks API
+                  version:
+                    type: string
+                    example: 1.0.0
+
+  /auth/register:
+    post:
+      tags:
+        - Autenticação
+      summary: Registrar novo usuário
+      description: Cria uma nova conta de usuário no sistema
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - username
+                - email
+                - senha
+              properties:
+                username:
+                  type: string
+                  minLength: 3
+                  maxLength: 20
+                  pattern: '^[a-zA-Z0-9_-]+$'
+                  example: joao_silva
+                email:
+                  type: string
+                  format: email
+                  example: joao@email.com
+                senha:
+                  type: string
+                  minLength: 6
+                  example: senha123
+      responses:
+        '200':
+          description: Usuário criado com sucesso
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Usuário criado com sucesso!
+        '400':
+          description: Dados inválidos ou usuário já existe
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                username_existente:
+                  value:
+                    error: Username já existente
+                email_existente:
+                  value:
+                    error: E-Mail já existente
+                email_invalido:
+                  value:
+                    error: E-Mail inválido
+        '429':
+          $ref: '#/components/responses/RateLimitExceeded'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+  /auth/login:
+    post:
+      tags:
+        - Autenticação
+      summary: Login do usuário
+      description: Autentica o usuário e retorna tokens JWT
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - senha
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: joao@email.com
+                senha:
+                  type: string
+                  example: senha123
+      responses:
+        '200':
+          description: Login realizado com sucesso
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  access_token:
+                    type: string
+                    description: Token de acesso válido por 1 hora
+                    example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+                  refresh_token:
+                    type: string
+                    description: Token de renovação válido por 7 dias
+                    example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+                  user:
+                    $ref: '#/components/schemas/User'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          description: Credenciais inválidas
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Credenciais inválidas
+        '429':
+          $ref: '#/components/responses/RateLimitExceeded'
+
+  /auth/refresh:
+    post:
+      tags:
+        - Autenticação
+      summary: Renovar access token
+      description: Utiliza o refresh token para obter um novo access token
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: header
+          name: Authorization
+          required: true
+          schema:
+            type: string
+            example: Bearer <refresh_token>
+          description: Refresh token no formato "Bearer {token}"
+      responses:
+        '200':
+          description: Token renovado com sucesso
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  access_token:
+                    type: string
+                    example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+        '401':
+          description: Token inválido ou expirado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                token_expirado:
+                  value:
+                    error: Refresh token expirado
+                token_invalido:
+                  value:
+                    error: Token inválido
+                token_tipo_errado:
+                  value:
+                    error: Token inválido para refresh
+
+  /auth/upload:
+    post:
+      tags:
+        - Usuário
+      summary: Upload de foto de perfil
+      description: Faz upload da foto de perfil do usuário (máx. 15MB)
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - file
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: Imagem PNG, JPG ou JPEG (máx. 15MB)
+      responses:
+        '200':
+          description: Foto atualizada com sucesso
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Foto de perfil atualizada com sucesso
+                  foto_perfil:
+                    type: string
+                    format: uri
+                    example: https://res.cloudinary.com/.../user_1.png
+        '400':
+          description: Arquivo inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                sem_arquivo:
+                  value:
+                    error: Nenhum arquivo enviado
+                arquivo_grande:
+                  value:
+                    error: Arquivo muito grande (MAX. 15MB)
+                formato_invalido:
+                  value:
+                    error: Formato não permitido
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/RateLimitExceeded'
+        '500':
+          description: Erro no upload
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Falha ao enviar imagem
+
+  /auth/update-username:
+    put:
+      tags:
+        - Usuário
+      summary: Atualizar username
+      description: Altera o username do usuário (requer senha)
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - newUsername
+                - password
+              properties:
+                newUsername:
+                  type: string
+                  minLength: 3
+                  maxLength: 20
+                  example: joao_novo
+                password:
+                  type: string
+                  example: senha123
+      responses:
+        '200':
+          description: Username atualizado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Username atualizado com sucesso
+                  username:
+                    type: string
+                    example: joao_novo
+        '400':
+          description: Username inválido ou já existe
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/RateLimitExceeded'
+
+  /auth/update-email:
+    put:
+      tags:
+        - Usuário
+      summary: Atualizar e-mail
+      description: Altera o e-mail do usuário (requer senha)
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - newEmail
+                - password
+              properties:
+                newEmail:
+                  type: string
+                  format: email
+                  example: joao.novo@email.com
+                password:
+                  type: string
+                  example: senha123
+      responses:
+        '200':
+          description: E-mail atualizado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: E-mail atualizado com sucesso
+                  email:
+                    type: string
+                    example: joao.novo@email.com
+        '400':
+          description: E-mail inválido ou já existe
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/RateLimitExceeded'
+
+  /auth/update-password:
+    put:
+      tags:
+        - Usuário
+      summary: Atualizar senha
+      description: Altera a senha do usuário
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - currentPassword
+                - newPassword
+              properties:
+                currentPassword:
+                  type: string
+                  example: senha123
+                newPassword:
+                  type: string
+                  minLength: 6
+                  example: novaSenha456
+      responses:
+        '200':
+          description: Senha atualizada
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Senha atualizada com sucesso
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          description: Senha atual incorreta
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Senha atual incorreta
+        '429':
+          $ref: '#/components/responses/RateLimitExceeded'
+
+  /auth/delete-account:
+    delete:
+      tags:
+        - Usuário
+      summary: Excluir conta
+      description: Exclui permanentemente a conta do usuário e todos os seus links
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - password
+              properties:
+                password:
+                  type: string
+                  example: senha123
+      responses:
+        '200':
+          description: Conta excluída
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Conta excluída com sucesso
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          description: Senha incorreta
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Senha incorreta
+        '429':
+          $ref: '#/components/responses/RateLimitExceeded'
+
+  /user/{username}:
+    get:
+      tags:
+        - Usuário
+      summary: Perfil público do usuário
+      description: Retorna o perfil público de um usuário incluindo seus links
+      parameters:
+        - in: path
+          name: username
+          required: true
+          schema:
+            type: string
+          description: Username do usuário
+          example: joao
+      responses:
+        '200':
+          description: Perfil encontrado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    example: 1
+                  username:
+                    type: string
+                    example: joao
+                  foto_perfil:
+                    type: string
+                    format: uri
+                    nullable: true
+                    example: https://res.cloudinary.com/.../user_1.png
+                  links:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                          example: 1
+                        titulo:
+                          type: string
+                          example: Meu GitHub
+                        url:
+                          type: string
+                          format: uri
+                          example: https://github.com/joao
+                        ordem:
+                          type: integer
+                          example: 1
+        '404':
+          description: Usuário não encontrado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Usuário não encontrado
+
+  /{username}:
+    get:
+      tags:
+        - Usuário
+      summary: Redirecionamento de perfil
+      description: Redireciona para a página de perfil no frontend
+      parameters:
+        - in: path
+          name: username
+          required: true
+          schema:
+            type: string
+          example: joao
+      responses:
+        '302':
+          description: Redireciona para o frontend
+          headers:
+            Location:
+              schema:
+                type: string
+                example: https://mylinks-352x.onrender.com/profile.html?user=joao
+
+  /links:
+    get:
+      tags:
+        - Links
+      summary: Listar links do usuário
+      description: Retorna todos os links do usuário autenticado ordenados por posição
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Lista de links
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Link'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+    post:
+      tags:
+        - Links
+      summary: Criar novo link
+      description: Adiciona um novo link ao perfil do usuário
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - titulo
+                - url
+              properties:
+                titulo:
+                  type: string
+                  maxLength: 100
+                  example: Meu Portfólio
+                url:
+                  type: string
+                  format: uri
+                  maxLength: 150
+                  example: https://meusite.com
+      responses:
+        '200':
+          description: Link criado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Link adicionado com sucesso
+        '400':
+          description: Dados inválidos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                campos_faltando:
+                  value:
+                    error: Campos obrigatórios
+                url_invalida:
+                  value:
+                    error: URL inválida
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/RateLimitExceeded'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+  /links/{id}:
+    put:
+      tags:
+        - Links
+      summary: Atualizar link
+      description: Atualiza as informações de um link existente
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+          description: ID do link
+          example: 1
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - titulo
+                - url
+              properties:
+                titulo:
+                  type: string
+                  maxLength: 100
+                  example: GitHub Atualizado
+                url:
+                  type: string
+                  format: uri
+                  maxLength: 150
+                  example: https://github.com/joao-silva
+      responses:
+        '200':
+          description: Link atualizado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Link atualizado com sucesso
+        '400':
+          description: Dados inválidos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/RateLimitExceeded'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+    delete:
+      tags:
+        - Links
+      summary: Excluir link
+      description: Remove um link do perfil do usuário
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+          description: ID do link
+          example: 1
+      responses:
+        '200':
+          description: Link excluído
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Link removido com sucesso
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/RateLimitExceeded'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+  /links/reorder:
+    put:
+      tags:
+        - Links
+      summary: Reordenar links
+      description: Altera a ordem de exibição dos links
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: object
+                required:
+                  - id
+                  - ordem
+                properties:
+                  id:
+                    type: integer
+                    example: 1
+                  ordem:
+                    type: integer
+                    example: 2
+              example:
+                - id: 2
+                  ordem: 1
+                - id: 1
+                  ordem: 2
+                - id: 3
+                  ordem: 3
+      responses:
+        '200':
+          description: Links reordenados
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Links reordenados com sucesso
+        '400':
+          description: Lista inválida
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/RateLimitExceeded'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: |
+        Token JWT de autenticação. Use o access_token obtido no login.
+        
+        Exemplo: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...`
+
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        username:
+          type: string
+          example: joao
+        email:
+          type: string
+          format: email
+          example: joao@email.com
+        foto_perfil:
+          type: string
+          format: uri
+          nullable: true
+          example: https://res.cloudinary.com/.../user_1.png
+
+    Link:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        usuario_id:
+          type: integer
+          example: 1
+        titulo:
+          type: string
+          maxLength: 100
+          example: Meu GitHub
+        url:
+          type: string
+          format: uri
+          maxLength: 150
+          example: https://github.com/joao
+        ordem:
+          type: integer
+          example: 1
+
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+          example: Descrição do erro
+
+  responses:
+    BadRequest:
+      description: Requisição inválida
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: Body inválido
+
+    Unauthorized:
+      description: Não autenticado ou token inválido
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          examples:
+            sem_token:
+              value:
+                error: Token de autenticação não fornecido
+            token_expirado:
+              value:
+                error: Token expirado
+            token_invalido:
+              value:
+                error: Token inválido
+
+    RateLimitExceeded:
+      description: Limite de requisições excedido
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+                example: Muitas requisições. Tente novamente mais tarde.
+              message:
+                type: string
+                example: 5 per 1 minute
+
+    ServerError:
+      description: Erro interno do servidor
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: Erro ao processar requisição
