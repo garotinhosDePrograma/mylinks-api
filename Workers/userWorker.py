@@ -20,9 +20,9 @@ class UserWorker:
             return {"error": get_username_error(username)}, 400
         
         if repo.find_by_username(username):
-            return {"error": "Username já existente"}, 401
+            return {"error": "Username já existente"}, 400
         if repo.find_by_email(email):
-            return {"error": "E-Mail já existente"}, 401
+            return {"error": "E-Mail já existente"}, 400
         
         hashed = bcrypt.hashpw(senha.encode("utf-8"), bcrypt.gensalt())
         user = repo.create(username, email, hashed.decode("utf-8"))
