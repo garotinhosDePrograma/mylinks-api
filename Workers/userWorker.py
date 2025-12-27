@@ -6,6 +6,7 @@ from datetime import datetime, timedelta
 from Repositories.userRepository import UserRepository
 from Utils.valid_email import is_valid_email
 from Utils.valid_username import is_valid_username, get_username_error
+from Utils.valid_password import verificar_senha
 
 load_dotenv()
 
@@ -18,6 +19,10 @@ class UserWorker:
             return {"error": "E-Mail inválido"}, 400
         if not is_valid_username(username):
             return {"error": get_username_error(username)}, 400
+        
+        valido, msg = verificar_senha(senha)
+        if not valido:
+            return {"error": msg}, 400
         
         if repo.find_by_username(username):
             return {"error": "Username já existente"}, 400
