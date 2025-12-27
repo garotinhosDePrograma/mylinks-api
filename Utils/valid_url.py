@@ -7,7 +7,7 @@ def is_valid_url(url):
     
     url = url.strip()
 
-    if url.lower().startswith('javascript:', 'data:', 'vbscript', 'file:'):
+    if url.lower().startswith(('javascript:', 'data:', 'vbscript', 'file:')):
         return False
     
     try:
