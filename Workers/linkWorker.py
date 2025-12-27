@@ -1,4 +1,5 @@
 from Repositories.linkRepository import LinkRepository
+from Utils.valid_url import is_valid_url, get_url_error
 
 repo = LinkRepository()
 
@@ -15,6 +16,10 @@ class LinkWorker:
         if links is None:
             return {"error": "Erro ao buscar links existentes"}, 500
         
+        url_valida = is_valid_url(url)
+        if not url_valida:
+            return {"error": get_url_error(url)}, 400
+
         nova_ordem = len(links) + 1
         link = repo.create(usuario_id, titulo, url, nova_ordem)
         
@@ -23,6 +28,10 @@ class LinkWorker:
         return {"message": "Link adicionado com sucesso"}
     
     def update(self, titulo, url, id, usuario_id):
+        url_valida = is_valid_url(url)
+        if not url_valida:
+            return {"error": get_url_error(url)}, 400
+        
         sucesso = repo.update(titulo, url, id, usuario_id)
         
         if not sucesso:
