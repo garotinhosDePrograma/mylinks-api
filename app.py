@@ -1,6 +1,7 @@
 from flask import Flask, jsonify, send_file
 from flask_cors import CORS
 from flask_swagger_ui import get_swaggerui_blueprint
+from flask_talisman import Talisman
 from extensions import limiter
 from Controllers.userController import user_bp
 from Controllers.linkController import link_bp
@@ -17,6 +18,26 @@ CORS(app, resources={
         "allow_headers": ["Content-Type", "Authorization"]
     }
 })
+
+Talisman(app,
+    force_https=True,
+    strict_transport_security=True,
+    content_security_policy={
+        'default-src': "'self'",
+        'img-src': ['*', 'data:', 'blob:'],
+        'script-src': ["'self", "'unsafe-inline", "https://cdnjs.cloudflare.com"],
+        'style-src': ["'self", "'unsafe-inline"]
+    }
+)
+
+@app.after_request
+def add_security_headers(response):
+    response.headers['X-Content-Type-Options'] = 'nosniff'
+    response.headers['X-Frame-Options'] = 'DENY'
+    response.headers['X-XSS-Protection'] = '1; mode=block'
+    response.headers['Referrer-Policy'] = 'strict-origin-when-cross-origin'
+    return response
+
 SWAGGER_URL = "/docs"
 API_URL = "/openapi.yaml"
 

@@ -44,7 +44,7 @@ class UserWorker:
         access_token = jwt.encode(
             {
                 "id": user.id,
-                "exp": datetime.utcnow() + timedelta(hours=1),
+                "exp": datetime.utcnow() + timedelta(minutes=15),
                 "type": "access"
             },
             SECRET_KEY,

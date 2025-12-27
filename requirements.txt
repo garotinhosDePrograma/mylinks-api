@@ -8,3 +8,4 @@ bcrypt
 pyjwt
 python-dotenv
 cloudinary==1.41.0
+flask-talisman==1.0.0
