@@ -6,8 +6,8 @@ info:
     
     ## Autenticação
     A API utiliza tokens JWT (JSON Web Tokens) para autenticação:
-    - **Access Token**: Válido por 1 hora
-    - **Refresh Token**: Válido por 7 dias
+    - **Access Token**: Válido por **15 minutos**
+    - **Refresh Token**: Válido por **7 dias**
     
     Para rotas protegidas, inclua o header:
     ```
@@ -18,6 +18,15 @@ info:
     - 200 requisições por dia
     - 50 requisições por hora
     - Endpoints específicos têm limites adicionais (5 por minuto)
+    
+    ## Códigos de Status HTTP
+    - **200 OK**: Requisição bem-sucedida
+    - **400 Bad Request**: Dados inválidos ou campos faltando
+    - **401 Unauthorized**: Token inválido ou expirado (problema de **autenticação**)
+    - **403 Forbidden**: Senha incorreta ou sem permissão (autenticado, mas sem **autorização**)
+    - **404 Not Found**: Recurso não encontrado
+    - **429 Too Many Requests**: Rate limit excedido
+    - **500 Internal Server Error**: Erro no servidor
     
   version: 1.0.0
   contact:
@@ -39,6 +48,8 @@ tags:
     description: Operações relacionadas ao perfil do usuário
   - name: Links
     description: Gerenciamento de links do usuário
+  - name: Sistema
+    description: Endpoints de sistema (health check, info)
 
 paths:
   /health:
@@ -88,7 +99,15 @@ paths:
       tags:
         - Autenticação
       summary: Registrar novo usuário
-      description: Cria uma nova conta de usuário no sistema
+      description: |
+        Cria uma nova conta de usuário no sistema.
+        
+        **Requisitos de senha:**
+        - Mínimo 10 caracteres
+        - Pelo menos 1 letra MAIÚSCULA
+        - Pelo menos 1 letra minúscula
+        - Pelo menos 1 número
+        - Pelo menos 1 caractere especial (!@#$%^&*(),.?":{}|<>)
       requestBody:
         required: true
         content:
@@ -106,14 +125,16 @@ paths:
                   maxLength: 20
                   pattern: '^[a-zA-Z0-9_-]+$'
                   example: joao_silva
+                  description: Username único (letras, números, _ e -)
                 email:
                   type: string
                   format: email
                   example: joao@email.com
                 senha:
                   type: string
-                  minLength: 6
-                  example: senha123
+                  minLength: 10
+                  example: Senha@123456
+                  description: Senha forte (10+ chars, MAIÚSCULA, minúscula, número, especial)
       responses:
         '200':
           description: Usuário criado com sucesso
@@ -141,6 +162,9 @@ paths:
                 email_invalido:
                   value:
                     error: E-Mail inválido
+                senha_fraca:
+                  value:
+                    error: Senha deve conter pelo menos 1 letra Maiúscula
         '429':
           $ref: '#/components/responses/RateLimitExceeded'
         '500':
@@ -168,7 +192,7 @@ paths:
                   example: joao@email.com
                 senha:
                   type: string
-                  example: senha123
+                  example: Senha@123456
       responses:
         '200':
           description: Login realizado com sucesso
@@ -179,7 +203,7 @@ paths:
                 properties:
                   access_token:
                     type: string
-                    description: Token de acesso válido por 1 hora
+                    description: Token de acesso válido por 15 minutos
                     example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
                   refresh_token:
                     type: string
@@ -338,7 +362,8 @@ paths:
                   example: joao_novo
                 password:
                   type: string
-                  example: senha123
+                  example: Senha@123456
+                  description: Senha atual para confirmação
       responses:
         '200':
           description: Username atualizado
@@ -361,6 +386,16 @@ paths:
                 $ref: '#/components/schemas/Error'
         '401':
           $ref: '#/components/responses/Unauthorized'
+        '403':
+          description: Senha incorreta
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Senha incorreta
         '429':
           $ref: '#/components/responses/RateLimitExceeded'
 
@@ -388,7 +423,8 @@ paths:
                   example: joao.novo@email.com
                 password:
                   type: string
-                  example: senha123
+                  example: Senha@123456
+                  description: Senha atual para confirmação
       responses:
         '200':
           description: E-mail atualizado
@@ -411,6 +447,16 @@ paths:
                 $ref: '#/components/schemas/Error'
         '401':
           $ref: '#/components/responses/Unauthorized'
+        '403':
+          description: Senha incorreta
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Senha incorreta
         '429':
           $ref: '#/components/responses/RateLimitExceeded'
 
@@ -434,11 +480,11 @@ paths:
               properties:
                 currentPassword:
                   type: string
-                  example: senha123
+                  example: Senha@123456
                 newPassword:
                   type: string
                   minLength: 6
-                  example: novaSenha456
+                  example: NovaSenha@789
       responses:
         '200':
           description: Senha atualizada
@@ -453,6 +499,8 @@ paths:
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
           description: Senha atual incorreta
           content:
             application/json:
@@ -470,7 +518,10 @@ paths:
       tags:
         - Usuário
       summary: Excluir conta
-      description: Exclui permanentemente a conta do usuário e todos os seus links
+      description: |
+        Exclui permanentemente a conta do usuário e todos os seus links.
+        
+        **⚠️ ATENÇÃO**: Esta ação é **irreversível**!
       security:
         - BearerAuth: []
       requestBody:
@@ -484,7 +535,8 @@ paths:
               properties:
                 password:
                   type: string
-                  example: senha123
+                  example: Senha@123456
+                  description: Senha para confirmação
       responses:
         '200':
           description: Conta excluída
@@ -499,6 +551,8 @@ paths:
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
           description: Senha incorreta
           content:
             application/json:
@@ -894,7 +948,7 @@ components:
             error: Body inválido
 
     Unauthorized:
-      description: Não autenticado ou token inválido
+      description: Não autenticado ou token inválido/expirado
       content:
         application/json:
           schema:
@@ -909,6 +963,15 @@ components:
             token_invalido:
               value:
                 error: Token inválido
+
+    Forbidden:
+      description: Autenticado, mas sem permissão (senha incorreta)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: Senha incorreta
 
     RateLimitExceeded:
       description: Limite de requisições excedido
