@@ -88,7 +88,7 @@ class UserWorker:
             return {"error": "Usuário não encontrado"}, 404
 
         if not bcrypt.checkpw(password.encode("utf-8"), user.senha.encode("utf-8")):
-            return {"error": "Senha incorreta"}, 401
+            return {"error": "Senha incorreta"}, 403
 
         if len(new_username) < 3 or len(new_username) > 20:
             return {"error": "Username deve ter entre 3 e 20 caracteres"}, 400
@@ -111,7 +111,7 @@ class UserWorker:
             return {"error": "Usuário não encontrado"}, 404
 
         if not bcrypt.checkpw(password.encode("utf-8"), user.senha.encode("utf-8")):
-            return {"error": "Senha incorreta"}, 401
+            return {"error": "Senha incorreta"}, 403
 
         existing_user = repo.find_by_email(new_email)
         if existing_user and existing_user.id != usuario_id:
@@ -131,7 +131,7 @@ class UserWorker:
             return {"error": "Usuário não encontrado"}, 404
 
         if not bcrypt.checkpw(current_password.encode("utf-8"), user.senha.encode("utf-8")):
-            return {"error": "Senha atual incorreta"}, 401
+            return {"error": "Senha atual incorreta"}, 403
 
         if len(new_password) < 6:
             return {"error": "Nova senha deve ter no mínimo 6 caracteres"}, 400
@@ -149,7 +149,7 @@ class UserWorker:
             return {"error": "Usuário não encontrado"}, 404
 
         if not bcrypt.checkpw(password.encode("utf-8"), user.senha.encode("utf-8")):
-            return {"error": "Senha incorreta"}, 401
+            return {"error": "Senha incorreta"}, 403
 
         sucesso = repo.delete_user(usuario_id)
         if not sucesso:
