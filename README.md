@@ -13,6 +13,8 @@ API RESTful desenvolvida em Python com Flask para o projeto **MyLinks**, um agre
 - **Flask** - Framework web
 - **Flask-CORS** - Permitir requisições cross-origin
 - **Flask-Swagger-UI** - Documentação interativa da API
+- **Flask-Limiter** - Rate limiting
+- **Flask-Talisman** - Segurança HTTPS
 - **MySQL** - Banco de dados relacional
 - **mysql-connector-python** - Driver MySQL
 - **bcrypt** - Criptografia de senhas
@@ -54,6 +56,7 @@ mylinks-api/
 │
 ├── app.py                       # Ponto de entrada principal da API
 ├── openapi.yaml                 # Especificação OpenAPI 3.0
+├── extensions.py                # Configuração Flask-Limiter
 │
 ├── Controllers/                 # Rotas e endpoints HTTP
 │   ├── userController.py        # Endpoints de usuário e autenticação
@@ -79,6 +82,7 @@ mylinks-api/
 │   ├── valid_url.py             # Validação de URLs
 │   ├── valid_email.py           # Validação de e-mails
 │   ├── valid_username.py        # Validação de usernames
+│   ├── valid_password.py        # Validação de senhas
 │   └── __init__.py
 │
 ├── .env                         # Variáveis de ambiente (não commitado)
@@ -142,7 +146,7 @@ Cliente → Controller → Worker → Repository → MySQL
 ### **JWT (JSON Web Token)**
 A API utiliza tokens JWT para autenticação:
 
-- **Access Token**: Válido por **1 hora**
+- **Access Token**: Válido por **15 minutos**
 - **Refresh Token**: Válido por **7 dias**
 
 ```python
@@ -150,7 +154,7 @@ A API utiliza tokens JWT para autenticação:
 access_token = jwt.encode(
     {
         "id": user["id"],
-        "exp": datetime.utcnow() + timedelta(hours=1),
+        "exp": datetime.utcnow() + timedelta(minutes=15),
         "type": "access"
     },
     SECRET_KEY,
@@ -181,6 +185,14 @@ hashed = bcrypt.hashpw(senha.encode("utf-8"), bcrypt.gensalt())
 # Login
 bcrypt.checkpw(senha.encode("utf-8"), user["senha"].encode("utf-8"))
 ```
+
+### **Validação de Senhas**
+A API valida senhas no cadastro seguindo critérios de segurança:
+- Mínimo 10 caracteres
+- Pelo menos 1 letra MAIÚSCULA
+- Pelo menos 1 letra minúscula
+- Pelo menos 1 número
+- Pelo menos 1 caractere especial (!@#$%^&*(),.?":{}|<>)
 
 ---
 
@@ -401,12 +413,12 @@ Cada push no GitHub fará deploy automaticamente.
 # Registro
 curl -X POST http://localhost:5000/auth/register \
   -H "Content-Type: application/json" \
-  -d '{"username":"teste","email":"teste@email.com","senha":"123456"}'
+  -d '{"username":"teste","email":"teste@email.com","senha":"Senha@123456"}'
 
 # Login
 curl -X POST http://localhost:5000/auth/login \
   -H "Content-Type: application/json" \
-  -d '{"email":"teste@email.com","senha":"123456"}'
+  -d '{"email":"teste@email.com","senha":"Senha@123456"}'
 
 # Listar links (com token)
 curl -X GET http://localhost:5000/links \
@@ -429,9 +441,14 @@ curl -X GET http://localhost:5000/links \
 | `200` | OK | Requisição bem-sucedida |
 | `400` | Bad Request | Dados inválidos ou campos faltando |
 | `401` | Unauthorized | Token inválido ou expirado |
+| `403` | Forbidden | Senha incorreta ou sem permissão |
 | `404` | Not Found | Recurso não encontrado |
 | `429` | Too Many Requests | Rate limit excedido |
 | `500` | Internal Server Error | Erro no servidor |
+
+### **Diferença entre 401 e 403**
+- **401 Unauthorized**: Problema de **autenticação** (token inválido/expirado)
+- **403 Forbidden**: **Autenticado**, mas sem **permissão** (ex: senha incorreta)
 
 ---
 
@@ -447,19 +464,22 @@ Todas as respostas de erro seguem o padrão:
 
 **Exemplos:**
 ```json
-// Token expirado
+// Token expirado (401)
 { "error": "Token expirado" }
 
-// Campos faltando
+// Senha incorreta (403)
+{ "error": "Senha incorreta" }
+
+// Campos faltando (400)
 { "error": "Campos obrigatórios" }
 
-// Username já existe
+// Username já existe (400)
 { "error": "Username já existente" }
 
-// URL inválida
+// URL inválida (400)
 { "error": "URL inválida" }
 
-// Rate limit
+// Rate limit (429)
 {
   "error": "Muitas requisições. Tente novamente mais tarde.",
   "message": "5 per 1 minute"
@@ -472,16 +492,19 @@ Todas as respostas de erro seguem o padrão:
 
 ### **Implementado:**
 - ✅ Senhas criptografadas com bcrypt
-- ✅ Tokens JWT com expiração
+- ✅ Validação de senhas (10+ caracteres, MAIÚSCULA, minúscula, número, especial)
+- ✅ Tokens JWT com expiração (15min + refresh 7 dias)
 - ✅ Refresh token para renovação
 - ✅ Validação de URLs
 - ✅ Validação de e-mails
 - ✅ Validação de usernames
-- ✅ Proteção contra SQL Injection (uso de prepared statements)
+- ✅ Proteção contra SQL Injection (prepared statements)
 - ✅ CORS configurado
 - ✅ Rate limiting (200/dia, 50/hora, 5/min em endpoints sensíveis)
 - ✅ Validação de tipos de arquivo (upload)
 - ✅ Limite de tamanho de imagem (15MB)
+- ✅ HTTPS forçado (Flask-Talisman)
+- ✅ Headers de segurança (X-Content-Type-Options, X-Frame-Options, X-XSS-Protection)
 
 ### **Recomendado para Produção:**
 - ⚠️ HTTPS obrigatório (já implementado no Render)
@@ -500,6 +523,7 @@ flask                     # Framework web
 flask-cors                # CORS
 flask-swagger-ui          # Documentação Swagger UI
 flask_limiter             # Rate limiting
+flask-talisman            # Segurança HTTPS
 mysql-connector-python    # Driver MySQL
 bcrypt                    # Criptografia
 pyjwt                     # JWT
