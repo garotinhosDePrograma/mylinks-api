@@ -146,7 +146,7 @@ def google_callback():
         print(f"Erro no callback do google: {e}")
         return redirect("https://mylinks-352x.onrender.com/login.html?error=server_error")
 
-@google_auth_bp.route("auth/google/mobile", methods=["POST"])
+@google_auth_bp.route("/auth/google/mobile", methods=["POST"])
 @cross_origin()
 @limiter.limit("10 per minute")
 def google_login_mobile():
