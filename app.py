@@ -5,6 +5,7 @@ from flask_talisman import Talisman
 from extensions import limiter
 from Controllers.userController import user_bp
 from Controllers.linkController import link_bp
+from Controllers.googleAuthController import google_auth_bp
 import logging
 
 app = Flask(__name__)
@@ -60,6 +61,7 @@ logging.basicConfig(
 
 app.register_blueprint(user_bp)
 app.register_blueprint(link_bp)
+app.register_blueprint(google_auth_bp)
 app.register_blueprint(swaggerui_bp)
 
 @app.errorhandler(429)
