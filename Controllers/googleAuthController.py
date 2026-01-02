@@ -233,8 +233,3 @@ def google_login_mobile():
     except Exception as e:
         print(f"Erro no login mobile do Google: {e}")
         return jsonify({"error": "Erro no servidor"}), 500
-
-@google_auth_bp.route("/auth/google/config", methods=["GET"])
-@cross_origin()
-def google_config():
-    return jsonify({"client_id": os.getenv("GOOGLE_CLIENT_ID")}), 200
