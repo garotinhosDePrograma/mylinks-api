@@ -26,8 +26,10 @@ Talisman(app,
     content_security_policy={
         'default-src': "'self'",
         'img-src': ['*', 'data:', 'blob:'],
-        'script-src': ["'self", "'unsafe-inline", "https://cdnjs.cloudflare.com"],
-        'style-src': ["'self", "'unsafe-inline"]
+        'script-src': ["'self'", "'unsafe-inline'", "https://cdnjs.cloudflare.com"],
+        'style-src': ["'self'", "'unsafe-inline'", "https://cdnjs.cloudflare.com"],
+        'worker-src': ["'self'", 'blob:'],
+        'connect-src': ["'self'", 'https://pygre.onrender.com']
     }
 )
 
