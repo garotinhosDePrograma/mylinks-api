@@ -20,7 +20,7 @@ configure_cloudinary()
 
 @user_bp.route("/auth/register", methods=["POST"])
 @cross_origin()
-@limiter.limit("5 per minute")
+@limiter.limit("10 per minute")
 def register():
     data = request.get_json()
     if not data:
@@ -40,7 +40,7 @@ def register():
 
 @user_bp.route("/auth/login", methods=["POST"])
 @cross_origin()
-@limiter.limit("5 per minute")
+@limiter.limit("10 per minute")
 def login():
     data = request.get_json()
     if not data:
@@ -99,7 +99,7 @@ def short_url(username):
 
 @user_bp.route("/auth/upload", methods=["POST"])
 @token_required
-@limiter.limit("5 per minute")
+@limiter.limit("10 per minute")
 def upload_foto(usuario_id):
     if "file" not in request.files:
         return jsonify({"error": "Nenhum arquivo enviado"}), 400
@@ -143,7 +143,7 @@ def upload_foto(usuario_id):
 
 @user_bp.route("/auth/update-username", methods=["PUT"])
 @token_required
-@limiter.limit("5 per minute")
+@limiter.limit("10 per minute")
 def update_username(usuario_id):
     data = request.get_json()
     if not data:
@@ -162,7 +162,7 @@ def update_username(usuario_id):
 
 @user_bp.route("/auth/update-email", methods=["PUT"])
 @token_required
-@limiter.limit("5 per minute")
+@limiter.limit("10 per minute")
 def update_email(usuario_id):
     data = request.get_json()
     if not data:
@@ -181,7 +181,7 @@ def update_email(usuario_id):
 
 @user_bp.route("/auth/update-password", methods=["PUT"])
 @token_required
-@limiter.limit("5 per minute")
+@limiter.limit("10 per minute")
 def update_password(usuario_id):
     data = request.get_json()
     if not data:
@@ -200,7 +200,7 @@ def update_password(usuario_id):
 
 @user_bp.route("/auth/delete-account", methods=["DELETE"])
 @token_required
-@limiter.limit("5 per minute")
+@limiter.limit("10 per minute")
 def delete_account(usuario_id):
     data = request.get_json()
     if not data:
